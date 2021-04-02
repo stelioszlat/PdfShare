@@ -16,8 +16,14 @@ def metadata_template(filename, user_added, keywords):
 
     return t
 
-def index_template():
-    pass
+def index_template(filename, useradded):
+    t = {
+        'file_name':filename,
+        'user_added':useradded,
+        'owners': []
+    }
+
+    return t
 
 
 if __name__=='__main__':
