@@ -25,5 +25,5 @@
 /sizeStorer.wt
 /storage.bson
 /templates.pyc
-backend (node.js)/*
 .DS_Store
+backend/node_modules/*
