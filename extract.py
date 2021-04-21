@@ -64,9 +64,3 @@ def extract(keywords, file):
     }
 
     return data
-
-if __name__=='__main__':
-
-    # e = extract_all(['cloud', 'metadata', 'author', 'computing'])
-    # e = extract(['cloud', 'metadata', 'author'], TEST_PATH+'demo1.pdf')
-    # print(e)
