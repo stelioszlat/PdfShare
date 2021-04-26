@@ -2,9 +2,9 @@ const mongoose = require('mongoose');
 
 
 const metadataSchema = mongoose.Schema({
-    fileName: {type: String, required: true},
-    uploader: {type: String, required: true},
-    dateAdded: {type: String, required: true},
+    fileName: {type: String},
+    uploader: {type: String},
+    dateAdded: {type: String},
     dateModified: {type: String},
     timesQueried: {type: Number},
     nodes: [{
