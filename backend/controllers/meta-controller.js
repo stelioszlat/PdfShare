@@ -6,7 +6,7 @@ const Metadata = require('../models/metadata');
 
 
 var localUri = "mongodb://localhost:27017/metadata";
-var atlasUri = "mongodb+srv://stelioszlat:ntERINguANdweSc@pdfcluster.0iyo1.mongodb.net/metadata?retryWrites=true&w=majority"
+var atlasUri = "mongodb+srv://stelioszlat:<password>@pdfcluster.0iyo1.mongodb.net/metadata?retryWrites=true&w=majority"
 
 const addMetadata = async (req, res, next) =>{
     // validate data and store them
