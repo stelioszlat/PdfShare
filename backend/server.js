@@ -1,37 +1,32 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const mongoose = require('mongoose');
-
-const metaRoutes = require('./routes/meta-routes');
-const HttpError = require('./models/http-error');
-
 const path = require('path');
 
-const app = express();
+const metaRoutes = require('./routes/meta-routes');
+const loggingRoutes = require('./routes/logging-routes');
+const indexRoutes = require('./routes/index-routes');
+const extractingRoutes = require('./routes/extracting-routes');
+const errorRoutes = require('./routes/error-routes');
+const { connect } = require('./db/connect');
 
-// app.use(bodyParser.urlencoded({extended: false}));
+const app = express();
+const connection = connect("mongodb://localhost:27017/metadata");
+
+const port = 8080;
+
 app.use(bodyParser.json())
-app.use(express.static('public'));
+app.use(express.static('/public'));
 
 app.get('/', (req, res, next)=>{
-    // res.status(200).json('Main page')
-    res.sendFile(path.join(__dirname + '/public/index.html'));
+    res.sendFile(path.join(__dirname, '../', 'frontend', 'public', 'index.html'));
 });
 
 app.use('/api/metadata', metaRoutes);
+app.use('/api/logging', loggingRoutes);
+app.use('/api/indexing', indexRoutes);
+app.use('/api/extracting', extractingRoutes);
+app.use(errorRoutes);
 
-// app.get('/files', (req, res, next)=>{       // query a
-    
-// });
-
-// mongoose.connect(
-//     "mongodb+srv://stelioszlat:ntERINguANdweSc@pdfcluster.0iyo1.mongodb.net/?retryWrites=true&w=majority",
-//     {useNewUrlParser: true,
-//     useUnifiedTopology: true}
-// ).then(()=>{
-//     app.listen(5000);
-// }).catch(()=>{
-//     new HttpError('Connection failed', 500);
-// });
-
-app.listen(8080);
+app.listen(port, () => {
+    console.log("Running server on " + 8080);
+});
