@@ -5,12 +5,11 @@ const path = require('path');
 const metaRoutes = require('./routes/meta-routes');
 const loggingRoutes = require('./routes/logging-routes');
 const indexRoutes = require('./routes/index-routes');
-const extractingRoutes = require('./routes/extracting-routes');
 const errorRoutes = require('./routes/error-routes');
 const { connect } = require('./db/connect');
 
 const app = express();
-const connection = connect("mongodb://localhost:27017/metadata");
+const connection = connect("mongodb://localhost:27017/database");
 
 const port = 8080;
 
@@ -24,7 +23,6 @@ app.get('/', (req, res, next)=>{
 app.use('/api/metadata', metaRoutes);
 app.use('/api/logging', loggingRoutes);
 app.use('/api/indexing', indexRoutes);
-app.use('/api/extracting', extractingRoutes);
 app.use(errorRoutes);
 
 app.listen(port, () => {
