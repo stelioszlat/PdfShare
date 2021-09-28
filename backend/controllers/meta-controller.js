@@ -1,13 +1,13 @@
 
 const Metadata = require('../models/metadata');
-const uuid = require('uuid/dist/v4');
+// const { uuid } = require('uuid/dist/v4');
 
 exports.addMetadata = async (req, res, next) =>{
 
     const {fileName, uploader, dateAdded, dateModified, keywords} = req.body; 
 
     const addedMeta = Metadata({
-        id: uuid(),
+        // id: uuid(),
         fileName: fileName,
         uploader: uploader,
         dateAdded: dateAdded,
