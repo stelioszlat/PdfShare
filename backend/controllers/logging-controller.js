@@ -1,3 +1,4 @@
+const Log = require('../models/log');
 
 exports.createLog = async (req, res, next) => {
     const {creator, action, message} = req.body
@@ -20,26 +21,20 @@ exports.createLog = async (req, res, next) => {
 };
 
 exports.getLogs = async (req, res, next) => {
-    // return all logs
+    
+    const { from, to } = req.params;
+
     try {
-        const result = await Log.find();
-        res.status(200).json({result});
-    }
-    catch(err){
+        const logs = await Log.find({
+            logTime: {$gte: from, $lte: to}
+        });
+        if (!logs) {
+            return next('Could not find logs');
+        }
+        res.status(200).json(logs);
+    } catch(err){
         return next(err);
     }
-};
-
-exports.getLogsFrom = async (req, res, next) => {
-    const from = req.body.from;
-    res.json({from});
-    return next();
-};
-
-exports.getLogsFromTo = async (req, res, next) => {
-    const {from, to} = req.body;
-    res.json({from, to});
-    return next();
 };
 
 exports.getLogsByUser = async (req, res, next) => {
@@ -47,12 +42,11 @@ exports.getLogsByUser = async (req, res, next) => {
 
     try {
         const result = await Log.findOne({userName: user});
-        if (result !== undefined) {
-            res.status(200).json({result});
+        if (!result) {
+            return next('Could not find logs.');
         }
-        res.status(500).json({message: "Could not find logs"});
-    }
-    catch(err) {
+        res.status(200).json({result});
+    } catch(err) {
         return next(err);
     }
 }
