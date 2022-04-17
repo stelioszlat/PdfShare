@@ -1,30 +1,43 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const path = require('path');
+
+const { graphqlHTTP } = require('express-graphql');
+const searchSchema = require('./graphql/schema');
+const searchResolver = require('./graphql/resolvers');
 
 const metaRoutes = require('./routes/meta-routes');
 const loggingRoutes = require('./routes/logging-routes');
-const indexRoutes = require('./routes/index-routes');
+const editRoutes = require('./routes/edit-routes');
+const searchRoutes = require('./routes/search-routes');
+const userRoutes = require('./routes/user-routes');
 const errorRoutes = require('./routes/error-routes');
-const { connect } = require('./db/connect');
+const authRoutes = require('./routes/auth-routes');
+const { authenticate } = require('./controllers/auth-controller');
+
+const config = require('./config.json');
+const db = require('./db/connect');
+const cache = require('./cache/redis-util');
+
+const host = config.host;
+const port = config.port;
 
 const app = express();
-const connection = connect("mongodb://localhost:27017/database");
-
-const port = 8080;
-
-app.use(bodyParser.json())
-app.use(express.static('/public'));
-
-app.get('/', (req, res, next)=>{
-    res.sendFile(path.join(__dirname, '../', 'frontend', 'public', 'index.html'));
-});
+app.use(bodyParser.json());
+// db.connect(config.mongo);
+db.connect(config.mongotest);
+cache.connect();
 
 app.use('/api/metadata', metaRoutes);
 app.use('/api/logging', loggingRoutes);
-app.use('/api/indexing', indexRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/search', authenticate, graphqlHTTP({
+    schema: searchSchema,
+    rootValue: searchResolver,
+    graphiql: true
+}));
 app.use(errorRoutes);
 
-app.listen(port, () => {
-    console.log("Running server on " + 8080);
+app.listen(port, host, () => {
+    console.log(`Running server on ${host}:${port}`);
 });
