@@ -1,6 +1,5 @@
 const bodyParser = require('body-parser');
 const express = require('express');
-const multer = require('multer');
 
 const extractRoutes = require('./extracting-routes');
 
@@ -8,14 +7,11 @@ const extract = express();
 const port = 8082;
 const host = "localhost";
 
-const uploader = multer({ storage: multer.memoryStorage() });
-
 extract.use(bodyParser.json());
 extract.use('/api/extracting', extractRoutes);
 
-
 extract.listen(port, host, () => {
-    console.log(`Running extracting service on ${host}:${port}`)
+    console.log(`Running extracting service on ${host}:${port}`);
 });
 
 // Run service on host:port
