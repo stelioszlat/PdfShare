@@ -25,9 +25,11 @@ const metadataSchema = mongoose.Schema({
       isUploader: { type: Boolean }
     }
   ],
-  edits: [                              // editing logs
-    { 
-      editId: { type: mongoose.Schema.Types.ObjectId, ref: 'Edit'},
+  edits: [
+    {
+      edit: { type: String, required: true },
+      editor: { type: String, required: true },
+      timeEdited: { type: String }
     }
   ]
 }, { timestamps: true, collection: 'metadata' });
