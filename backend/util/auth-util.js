@@ -3,13 +3,16 @@ const User = require('../models/user');
 
 exports.userExists = async (req, res, next) => {
     // check if user exists
-    const userId = req.params.uid;
+    const userEmail = req.body.email;
 
     try {
-        const user = await User.findById(userId);
 
-        if (!user) {
-            return next('Could not find user.');
+        const user = await User.find({
+            email: userEmail
+        });
+
+        if (user.length !== 0) {
+            return res.status(409).json({ message: 'User already exists.' });
         }
 
     } catch (err) {
@@ -27,12 +30,13 @@ exports.userHasToken = async (req, res, next) => {
         const user = await User.findById(userId);
 
         if (!user) {
-            return next('Could not find user');
+            return res.status(409).json({ message: 'Could not find user.' });
         }
 
-        res.status(200).json({
-            accessToken: user.token
-        });
+        if (user.token) {
+            return res.status(409).json({ message: 'User has already a token.'});
+        }
+
     } catch (err) {
         return next(err);
     }

@@ -7,7 +7,7 @@ const { userExists } = require('../util/auth-util');
 const router = express.Router();
 
 // /api/auth
-router.post('/login', userExists, authController.login);
+router.post('/login', authController.login);
 router.post('/register', userExists, authController.register);
 router.use(tokenRoutes);
 

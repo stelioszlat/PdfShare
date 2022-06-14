@@ -1,5 +1,7 @@
 const express = require('express');
+const mongoose = require('mongoose');
 const User = require('../models/user');
+const { v4: uuid } = require('uuid');
 
 exports.getUsers = async (req, res, next) => {
     // get all users
@@ -7,7 +9,7 @@ exports.getUsers = async (req, res, next) => {
         const users = await User.find();
 
         if (!users) {
-            return next('Could not find users.');
+            res.status(409).json({ message: 'Could not find users.' });
         }
 
         res.status(200).json({ users });
@@ -27,17 +29,16 @@ exports.createUser = async (req, res, next) => {
         });
 
         if (existingUser) {
-            res.status(409);
-            return next('User already exists');
+            res.status(409).json({ message: 'User already exists' });
         }
 
         if (password === rePassword) {
-            res.status(409);
-            return next('Re-entered password does not match');
+            res.status(409).json({ message: 'Re-entered password does not match' });
         }
 
         const hashedPassword = bcrypt.hash(password, 12);
         const user = new User({
+            id: uuid(),
             name: name,
             email: email,
             password: hashedPassword,
@@ -46,12 +47,11 @@ exports.createUser = async (req, res, next) => {
         const result = await user.save();
 
         if (!result) {
-            res.status(409);
-            return next('Could not create user.');
+            res.status(409).json({ message: 'Could not create user.' });
         }
 
         console.log(result);
-        res.status(200).json({ message: 'Created user', result: result});
+        res.status(200).json({ result: result});
 
     } catch (err) {
         return next(err);
@@ -65,7 +65,7 @@ exports.getUserById = async (req, res, next) => {
         const user = await User.findById(userId);
 
         if (!user) {
-            return next('User does not exist');
+            res.status(409).json({ message: 'User does not exist' });
         }
 
         res.status(200).json({user});
@@ -82,7 +82,7 @@ exports.updateUserById = async (req, res, next) => {
     try {
         const user = await User.findByIdAndDelete(userId);
 
-        res.status(200).json({user});
+        res.status(200).json({ user });
     
     } catch (err) {
         console.log(err);
@@ -96,10 +96,18 @@ exports.deleteUserById = async (req, res, next) => {
     try {
         const user = await User.findByIdAndDelete(userId);
 
-        res.status(200).json({user});
+        res.status(200).json({ user });
     
     } catch (err) {
         console.log(err);
         return next(err);
     }
 };
+
+exports.hasValidId = (req, res, next) => {
+    if (!mongoose.Types.ObjectId.isValid(req.params.uid)) {
+        res.status(404).json({ message: 'Could not find user.' });
+    }
+
+    next();
+}
