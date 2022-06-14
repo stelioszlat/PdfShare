@@ -1,10 +1,10 @@
 const express = require('express');
-const elasticsearch = require('elasticsearch');
+const { Client } = require('elasticsearch');
 const { json } = require('body-parser');
+const config = require('../config.json');
 
-const host = "http://192.168.1.9:9200";
-const client = new elasticsearch.Client(host, () => {
-    console.log("Running elasticsearch cluster on " + host);
+const client = new Client({
+    node: config.elastic.host
 });
 
 exports.getInfo = async (req, res, next) => {
@@ -19,11 +19,11 @@ exports.getInfo = async (req, res, next) => {
 }
 
 exports.addIndex = async (req, res, next) => {
-    const {indexName, owner } = req.body;
+    const {indexName, owner, keywords} = req.body;
 
     client.indices.create(
         {
-            index: indexname,
+            index: indexName,
         },
         function (err, resp, status) {
             if (err) {
@@ -41,24 +41,15 @@ exports.addIndex = async (req, res, next) => {
             {
                 index: indexName,
                 owner: owner,
-                keywords: [
-                    {
-                        keyword: "keyword1",
-                        appeared: 10,
-                    },
-                    {
-                        keyword: "keyword2",
-                        appeared: 13,
-                    },
-                ],
+                keywords: keywords
             },
             function (err, resp, status) {
                 if (err) {
                     console.log(resp);
-                    res.status(400).json({ err });
+                    res.status(status).json({ err });
                 }
                 else {
-                    res.status(200).json({ message: "Created index", resp});
+                    res.status(status).json({ message: "Created index", resp});
                 }
             }
         );
