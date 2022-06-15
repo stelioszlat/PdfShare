@@ -10,6 +10,6 @@ const router = express.Router();
 router.post('/token/:uid/new', tokenController.getTokenByUserId);
 router.get('/token/:uid', tokenController.getTokenByUserId);
 router.get('/token/:uid/expires', tokenController.getTokenExpiryByUserId);
-router.post('/token/:uid/refresh', tokenController.renewTokenByUserId);
+router.post('/token/:uid/refresh', tokenController.refreshTokenByUserId);
 
 module.exports = router;

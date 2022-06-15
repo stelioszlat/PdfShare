@@ -37,7 +37,7 @@ exports.login = async (req, res, next) => {
 
     try {
         const hashedPassword = await bcrypt.hash(password, 12);
-        console.log(hashedPassword);
+
         const userFound = await User.findOne({
             username: username,
             password: hashedPassword

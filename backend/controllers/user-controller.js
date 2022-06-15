@@ -1,7 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const User = require('../models/user');
-const { v4: uuid } = require('uuid');
 
 exports.getUsers = async (req, res, next) => {
     // get all users
@@ -38,7 +37,6 @@ exports.createUser = async (req, res, next) => {
 
         const hashedPassword = bcrypt.hash(password, 12);
         const user = new User({
-            id: uuid(),
             name: name,
             email: email,
             password: hashedPassword,

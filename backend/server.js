@@ -2,10 +2,6 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 
-const { graphqlHTTP } = require('express-graphql');
-const searchSchema = require('./graphql/schema');
-const searchResolver = require('./graphql/resolvers');
-
 const metaRoutes = require('./routes/meta-routes');
 const loggingRoutes = require('./routes/logging-routes');
 const userRoutes = require('./routes/user-routes');
@@ -37,11 +33,6 @@ app.use('/api/logging', loggingRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/search', searchRoutes);
-app.use('/api/graphql/search/', graphqlHTTP({
-    schema: searchSchema,
-    rootValue: searchResolver,
-    graphiql: true
-}));
 app.use(errorRoutes);
 
 app.listen(port, host, () => {
