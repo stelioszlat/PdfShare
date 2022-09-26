@@ -1,0 +1,36 @@
+.edit-file-wrapper {
+    position: fixed;
+    width: 70%;
+    height: 80%;
+    background-color: white;
+    top: 15%;
+    left: 10%;
+    border-radius: 5px;
+    margin: 40px;
+    box-shadow: 0px 6px 10px 0px rgb(0 0 0 / 14%), 0px 1px 18px 0px rgb(0 0 0 / 12%), 0px 3px 5px -1px rgb(0 0 0 / 20%);
+}
+
+.edit-file {
+    height: 60%;
+}
+
+.edit-file-header {
+    justify-self: flex-start;
+    height: 15%;
+    width: auto;
+}
+
+.edit-file-header .icon-button{
+    margin-left: 270px;
+}
+
+.edit-file-header {
+    justify-self: flex-start;
+    height: 5%;
+    width: auto;
+}
+
+.edit-file-footer button{
+    position: relative;
+    margin-left: 145px;
+}

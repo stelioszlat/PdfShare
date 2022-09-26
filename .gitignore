@@ -3,4 +3,14 @@
 /__pycache__
 .DS_Store
 backend/node_modules/*
-frontend/*
+backend/dist
+backend/.env
+backend/package-lock.json
+backend/yarn.lock
+backend/extra/package-lock.json
+backend/extra/node_modules/*
+backend/extra/data/*
+backend/extra/data.mv.db
+backend/web/package-lock.json
+backend/web/node_modules
+client/venv

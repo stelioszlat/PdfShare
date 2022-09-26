@@ -1,0 +1,21 @@
+version: "1.0.0"
+services:
+  backend:
+    build: .
+    ports: 
+      - "8080":"8080"
+
+  extract:
+    build: "extra"
+    ports:
+      - "8090":"8080" 
+  
+  storage:
+    build: "db"
+    ports:
+      - "27017":"27017"
+  
+  cache:
+    build: "cache"
+    ports:
+      - "6379":"6379"

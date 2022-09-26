@@ -1,4 +1,4 @@
-FROM node:latest
+FROM node:alpine
 
 WORKDIR /home/backend/extra
 
@@ -8,8 +8,8 @@ RUN npm install
 
 COPY . .
 
-COPY ../util/* .
+COPY ../shared .
 
-EXPOSE 8082
+EXPOSE 8080
 
 CMD ["npm", "start"]

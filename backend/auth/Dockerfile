@@ -1,16 +1,12 @@
 FROM node:alpine
 
-WORKDIR /home/backend
+WORKDIR /home/backend/auth
 
 COPY package*.json ./
 
 RUN npm install
 
 COPY . .
-
-RUN npm install -g typescript
-
-RUN tsc
 
 EXPOSE 8080
 

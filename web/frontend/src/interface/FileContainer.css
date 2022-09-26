@@ -1,0 +1,8 @@
+.file-container {
+    margin: 50px;
+}
+
+.file-row {
+    display: flex;
+    flex-direction: row;
+}

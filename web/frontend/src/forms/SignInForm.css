@@ -1,0 +1,36 @@
+.signin-form form {
+    margin-top: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.signin-form label {
+    margin: 10px;
+}
+
+.signin-form input {
+    height: 30px;
+    border-radius: 5px;
+    box-shadow: 0px 6px 10px 0px rgb(0 0 0 / 14%), 0px 1px 18px 0px rgb(0 0 0 / 12%), 0px 3px 5px -1px rgb(0 0 0 / 20%);
+    border: none;
+    margin: auto;
+    padding-left: 5px;
+}
+
+.signin-form button {
+    margin-top: 60px;
+}
+
+.signin-form .text-button {
+    font-size: 14px;
+    margin-top: 15px;
+    color: #727272;
+    background-color: inherit;
+    border: none;
+}
+
+.validation-message {
+    color: #ff0000;
+}
