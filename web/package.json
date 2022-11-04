@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon web-server.js",
+    "start": "node web-server.js",
+    "dev": "nodemon web-server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
