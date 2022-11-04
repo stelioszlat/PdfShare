@@ -1,7 +1,5 @@
 const Router = require('express');
 
-// import { userExists, userHasToken } from '../util/auth-util';
-// import authenticate from '../controllers/auth-controller';
 const tokenController = require('./token-controller');
 
 const router = Router();

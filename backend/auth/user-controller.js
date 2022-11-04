@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
-const User = require('./user');
+const User = require('./user-model');
 
 exports.getUsers = async (req, res, next) => {
     // get all users

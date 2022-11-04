@@ -1,61 +1,48 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
-const User = require('./user');
-const cache = require('../shared/redis-util');
+const User = require('./user-model');
+const util = require('./util');
 
-const secret = "alksdjfhasdkfhjaskdhf"; // process.env.SECRET
+const secret = process.env.SECRET;
 
-const signToken = (username, email) => {
+const signToken = (user) => {
     return jwt.sign({
-        username: username,
-        email: email
+        username: user.username,
+        email: user.email,
+        isAdmin: user.isAdmin 
     }, secret, { expiresIn: '1h'});
 }
 
-exports.authenticate = (req, res, next) => {
-    const authHeader = req.get('Authorization');
-    
+exports.login = async (req, res, next) => {
+    const { username, password } = req.body;
+
+    const authHeader = req.get('Authorization')
     if (!authHeader) {
-        return res.status(401).json({ message: 'No Authorization header found.' });
+        return res.status(401).json({ message: 'No Authorization header found' });
     }
 
     const token = authHeader.split(' ')[1];
-
     if (!jwt.decode(token)) {
-        return res.status(401).json({ message: 'Token not valid.'});
-    }   
+        return res.status(401).json({ message: 'Token not valid' });
+    }
 
     const decodedToken = jwt.verify(token, secret);
-
     if (!decodedToken) {
         return res.status(401).json({ message: 'Not authenticated.' });
     }
 
-    const cachedToken = cache.get(decodedToken.username + '_token');
-    if (!cachedToken) {
-        return res.status(403).json({ message: 'You have to log in first' });
-    }
-
-    req.token = token;
-    next();
-}
-
-exports.login = async (req, res, next) => {
-
-    const { username, password } = req.body;
-
     if (!username) {
-        return res.status(401).json({ message: 'You need to enter a username.'});
+        return res.status(400).json({ message: 'You need to enter a username.'});
     }
 
     if (!password) {
-        return res.status(401).json({ message: 'You need to enter a password.'});
+        return res.status(400).json({ message: 'You need to enter a password.'});
     }
 
     try {
         const hashedPassword = await bcrypt.hash(password, 12);
 
-        const userFound = User.findOne({
+        const userFound = await User.findOne({
             username: username,
             password: hashedPassword
         });
@@ -64,8 +51,8 @@ exports.login = async (req, res, next) => {
             return res.status(404).json({ message: 'Could not find user.' });
         }
 
-        const token = signToken(userFound.username, userFound.email);
-        cache.set(username + '_token', token);
+        const token = signToken(userFound);
+        await util.setToCache(username + '_token', token);
     
         res.status(200).json(token);
         
@@ -73,6 +60,11 @@ exports.login = async (req, res, next) => {
         return next(err);
     }
 };
+
+// exports.logout = async (req, res, next) => {
+//    
+//
+// }
 
 exports.register = async (req, res, next) => {
 
@@ -101,21 +93,21 @@ exports.register = async (req, res, next) => {
     try {
         const hashedPassword = await bcrypt.hash(password, 12);
 
-        const user = User.create({
+        const user = new User({
             username: username,
             email: email,
             password: hashedPassword,
         });
     
-        // const result = await user.save();
+        const result = await user.save();
 
-        if (!user) {
+        if (!result) {
             return res.status(409).json({ message: 'Could not create user.'});
         }
 
         const token = signToken(username, email);
-        cache.set(username + '_token', token);
-
+        await util.setToCache(username + '_token', token);
+        
         res.status(200).json(token);
 
     } catch (err) {
