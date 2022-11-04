@@ -7,14 +7,11 @@ const rest = require('axios').default;
 const pdf = require('pdf-parse');
 const dotenv = require('dotenv');
 
-const apiLogger = require('../shared/log-util');
-const cache = require('../shared/redis-util');
+const utils = require('./utils');
 
 dotenv.config();
 const host = process.env.HOST;
 const port = process.env.PORT;
-
-cache.connect();
 
 const uploader = multer({ storage: multer.diskStorage({ 
     destination: (req, file, cb) => {
@@ -30,7 +27,7 @@ const uploader = multer({ storage: multer.diskStorage({
 const extract = express();
 extract.use(cors());
 extract.use(bodyParser.json());
-extract.use(apiLogger);
+extract.use(utils.apiLogger);
 extract.use('/api/extract/file',  uploader.single('file'), async (req, res, next) => {
 
     const file = req.file;
