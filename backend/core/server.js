@@ -10,10 +10,10 @@ const errorRoutes = require('./routes/error-routes');
 const searchRoutes = require('./routes/search-routes');
 const settingsRoutes = require('./routes/settings-routes');
 
-const connectDb = require('../shared/db-util');
-const cache = require('../shared/redis-util');
-const apiLogger = require('../shared/log-util');
-const swaggerConfig = require('../swagger.json');
+const connectDb = require('./util/db-util');
+const cache = require('./util/redis-util');
+const apiLogger = require('./util/log-util');
+const swaggerConfig = require('./swagger.json');
 
 dotenv.config();
 const host = process.env.HOST;
@@ -41,6 +41,5 @@ app.listen(port, host, () => {
     }
 
     cache.connect();
-    cache.set('user', 'stelios');
     console.log(`Running server on ${host}:${port}`);
 });

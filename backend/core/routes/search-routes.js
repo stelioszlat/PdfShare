@@ -1,25 +1,15 @@
 const { Router } = require('express');
-const { graphqlHTTP } = require('express-graphql');
 
-const cache = require('../../shared/redis-util');
-const index = require('../../shared/elastic-util');
-const Metadata = require('../models/metadata');
-
-const searchSchema = require('../graphql/schema');
-const searchResolver = require('../graphql/resolvers');
+const cache = require('../util/redis-util');
+const index = require('../util/elastic-util');
+const Metadata = require('../models/metadata')
 
 const router = Router();
 
 // /api/search
-router.post('', graphqlHTTP({
-    schema: searchSchema,
-    rootValue: searchResolver,
-    graphiql: true
-}));
+router.post('', async (req, res, next) => {
 
-router.get('/:fid', async (req, res, next) => {
-
-    const file = req.params.fid;
+    const { file, author, keywords } = req.body;
 
     try {
 
@@ -31,11 +21,11 @@ router.get('/:fid', async (req, res, next) => {
 
         // search also in elastic cluster...
         
-        const indexedFile = await index.searchIndex(file)
+        // const indexedFile = await index.searchIndex(file)
 
-        if (indexedFile) {
-            return res.status(200).json(indexedFile);
-        }
+        // if (indexedFile) {
+        //     return res.status(200).json(indexedFile);
+        // }
 
         const dbFile = await Metadata.findById(file);
 

@@ -1,8 +1,10 @@
 // import config from '../config.json';
 const { createClient } = require('redis');
 
+const host = "redis://localhost:6379" // process.env.REDIS_HOST
+
 const client = createClient({
-    url: "redis://localhost:6379"
+    url: host
 });
 
 exports.connect = async () => {
@@ -10,9 +12,7 @@ exports.connect = async () => {
         console.log(err);
     });
 
-    await client.connect();
-
-    console.log("Connected to cache");
+    await client.connect().then(() => { console.log("Connected to cache on " + host) });
 }
 
 // export const cacheHealthCheck = (): boolean => {
@@ -24,10 +24,10 @@ exports.connect = async () => {
 //     });
 // }
 
-exports.get = (key) => {
-    return client.get(key);
+exports.get = async (key) => {
+    return await client.get(key);
 }
 
-exports.set = (key, value) => {
-    return client.set(key, JSON.stringify(value));
+exports.set = async (key, value) => {
+    return await client.set(key, JSON.stringify(value));
 }

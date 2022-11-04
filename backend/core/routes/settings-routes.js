@@ -5,11 +5,12 @@ const Settings = require('../models/settings');
 const router = Router();
 
 // /api/settings
-router.get('/all', async (req, res, next) => {
+router.get('', async (req, res, next) => {
     
+    const { username } = req.query; 
 
     try {
-        const settings = await Settings.find();
+        const settings = await Settings.find({ user: username });
 
         if (!settings) {
             return res.status(404).json({ message: "Could not find settings."});
