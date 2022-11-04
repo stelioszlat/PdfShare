@@ -8,8 +8,6 @@ RUN npm install
 
 COPY . .
 
-COPY ../shared .
-
 EXPOSE 8080
 
 CMD ["npm", "start"]
