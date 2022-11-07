@@ -36,7 +36,7 @@ exports.createUser = async (req, res, next) => {
             res.status(409).json({ message: 'Re-entered password does not match' });
         }
         console.log('here');
-        const hashedPassword = bcrypt.hash(password, 12);
+        const hashedPassword = await bcrypt.hash(password, 12);
         const user = new User({
             username: username,
             email: email,
@@ -64,7 +64,7 @@ exports.getUserById = async (req, res, next) => {
         const user = await User.findById(userId);
 
         if (!user) {
-            res.status(409).json({ message: 'User does not exist' });
+            res.status(404).json({ message: 'User does not exist' });
         }
 
         res.status(200).json({user});
@@ -81,6 +81,10 @@ exports.updateUserById = async (req, res, next) => {
     try {
         const user = await User.findByIdAndDelete(userId);
 
+        if (!user) {
+            res.status(404).json({ message: 'User does not exist' });
+        }
+
         res.status(200).json({ user });
     
     } catch (err) {
@@ -94,6 +98,10 @@ exports.deleteUserById = async (req, res, next) => {
 
     try {
         const user = await User.findByIdAndDelete(userId);
+
+        if (!user) {
+            return res.status(404).json({ message: 'User does not exist' });
+        }
 
         res.status(200).json({ user });
     
