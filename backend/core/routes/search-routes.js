@@ -2,7 +2,8 @@ const { Router } = require('express');
 
 const cache = require('../util/redis-util');
 const index = require('../util/elastic-util');
-const Metadata = require('../models/metadata')
+const Metadata = require('../models/metadata');
+const Search = require('../models/search');
 
 const router = Router();
 
@@ -13,7 +14,15 @@ router.post('', async (req, res, next) => {
 
     try {
 
-        const cachedFile = await cache.get(file);
+        const search = new Search({
+            fileName: file,
+            author: author,
+            keywords: keywords
+        });
+
+        await search.save();
+
+        const cachedFile = await cache.get(JSON.stringify(file));
 
         if (cachedFile) {
             return res.status(200).json(JSON.parse(cachedFile));
@@ -27,7 +36,9 @@ router.post('', async (req, res, next) => {
         //     return res.status(200).json(indexedFile);
         // }
 
-        const dbFile = await Metadata.findById(file);
+        const dbFile = await Metadata.find({
+            fileName: file
+        });
 
         if (!dbFile) {
             return res.status(404).json('Could not find file.')
