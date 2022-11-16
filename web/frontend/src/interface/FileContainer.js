@@ -1,20 +1,20 @@
 import React from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
 
 import './FileContainer.css';
 
 import File from '../components/File';
 
-const FILES = [
-    {
-        name: "{file_name}.pdf",
-        lastUpdated: "{last update date}"
-    },
-    {
-        name: "{file_name}.pdf",
-        lastUpdated: "{last update date}"
-    }
-]
+// const FILES = [
+//     {
+//         name: "{file_name}.pdf",
+//         lastUpdated: "{last update date}"
+//     },
+//     {
+//         name: "{file_name}.pdf",
+//         lastUpdated: "{last update date}"
+//     }
+// ]
 
 
 const FileContainer = props => {

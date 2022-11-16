@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { useDispatch } from 'react-redux';
 import './SearchField.css';
 
@@ -11,12 +11,16 @@ const SearchField = props => {
         dispatch({ type: 'searchFocus' });
     }
 
+    const searchHandler = event => {
+        
+    }
+
     return (
         <div className="search-wrapper"> 
             <div className="search-field">
                 <input type="text" placeholder="Search anything..." onFocus={searchFocusHandler}/>
             </div>
-            <Button label="Go" />
+            <Button label="Go" onClick={searchHandler}/>
         </div>  
     );
 };

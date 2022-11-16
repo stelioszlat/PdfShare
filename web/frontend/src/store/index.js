@@ -1,8 +1,8 @@
 import { configureStore } from '@reduxjs/toolkit';
 
 const initialState = {
-    isLoggedIn: true,
-    showLogin: false,
+    isLoggedIn: false,
+    showLogin: true,
     showNewFileForm: false,
     showForgotPasswordForm: false,
     searchFocus: false,
