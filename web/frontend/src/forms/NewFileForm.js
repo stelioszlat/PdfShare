@@ -1,10 +1,11 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { useSelector } from 'react-redux';
 
 import './NewFileForm.css';
 
 import Form from '../components/Form';
 import Button from '../components/Button';
+import FileSelector from '../components/FileSelector';
 
 const NewFileForm = props => {
 	const isLoggedIn = useSelector(state => state.isLoggedIn);
@@ -29,7 +30,7 @@ const NewFileForm = props => {
 		<>
 			{isLoggedIn && showNewFileForm &&
 				<Form className="newfile-form" title="Create">
-            		<input type="file" name="file"/><br/>
+            		<FileSelector/><br/>
 					<Button label="Upload File" onClick={onClickHandler} />
 				</Form>
 			}		
