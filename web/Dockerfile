@@ -8,6 +8,14 @@ RUN npm install
 
 COPY . .
 
-EXPOSE 8080
+EXPOSE 8090
+
+WORKDIR /home/backend/web/frontend
+
+RUN npm install
+
+CMD ["npm", "run", "build"]
+
+WORKDIR /home/backend/web
 
 CMD ["npm", "start"]
