@@ -55,7 +55,7 @@ const SignInForm = props => {
     }
 
     const loginHandler = event => {
-        fetch("http://192.168.1.5:8086/api/auth/login", {
+        fetch("http://127.0.0.1:8086/api/auth/login", {
             method: "POST",
             headers: {
                 'Content-Type': 'application/json',
@@ -68,7 +68,7 @@ const SignInForm = props => {
         .then(response => {
             if (!response.ok) {
                 return response.json().then(data => {
-                    console.log(data);
+                    setError(data);
                 });
             }
 
@@ -79,7 +79,7 @@ const SignInForm = props => {
             setError(err);
             setIsValid(false);
             setValidationMessage('Connection error');
-            dispatch({ type: 'login '});
+            dispatch({ type: 'showSignUp '});
         });
     }
 
@@ -95,7 +95,7 @@ const SignInForm = props => {
                     <button className="text-button" href="#" onClick={forgotPasswordHandler}>Forgot your password? Click here</button>
                     <Button label="Sign In" onClick={submitHandler}/>   
                     
-                    {error ? <Error message={validationMessage} /> :
+                    {error ? <Error message={error.message} /> :
                         !isValid ? <p className="validation-message">{validationMessage}</p> : <p></p>
                     }
                 </Form>
