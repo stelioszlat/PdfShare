@@ -6,8 +6,7 @@ const UserSchema = mongoose.Schema({
     password: { type: String },
     isAdmin: { type: Boolean },
     lastLogin: { type: String },
-    accessToken: { type: String },
-    refreshToken: { type: String }
+    apiToken: { type: String },
 }, { timestamps: true, collection: 'users' });
 
 module.exports = mongoose.model('User', UserSchema);

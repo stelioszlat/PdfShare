@@ -2,11 +2,13 @@ const { connect } = require('mongoose');
 const { createClient } = require('redis');
 const morgan = require('morgan');
 const dotenv = require('dotenv');
+const jwt = require('jsonwebtoken');
 
 const User = require('./user-model');
 
 dotenv.config();
 const host = process.env.REDIS_HOST;
+const secret = process.env.SECRET;
 
 const client = createClient({
     url: host
@@ -91,6 +93,48 @@ exports.userHasToken = async (req, res, next) => {
         return next(err);
     }
 
+    next();
+}
+
+exports.signToken = (user) => {
+    return jwt.sign({
+        username: user.username,
+        email: user.email,
+        isAdmin: user.isAdmin 
+    }, secret, { expiresIn: '1h'});
+}
+
+exports.authenticate = async (req, res, next) => {
+    try {
+        const authHeader = req.get('Authorization')
+        if (!authHeader) {
+            return res.status(401).json({ message: 'No Authorization header found' });
+        }
+
+        const token = authHeader.split(' ')[1];
+        if (!jwt.decode(token)) {
+            return res.status(401).json({ message: 'Token not valid' });
+        }
+
+        const decodedToken = jwt.verify(token, secret);
+        if (!decodedToken) {
+            return res.status(401).json({ message: 'Not authenticated.' });
+        }
+
+        if (decodedToken.isAdmin) {
+            req.isAdmin = true;
+        }
+        
+        next();
+    } catch (err) {
+        return next(err);
+    }
+};
+
+exports.isAdmin = (req, res, next) => {
+    if (!req.isAdmin) {
+        return res.status(403).json({ message: "You are not authorized to access this resource" });
+    }
     next();
 }
 

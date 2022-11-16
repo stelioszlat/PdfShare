@@ -8,6 +8,6 @@ const router = Router();
 // /api/auth
 router.post('/login', authController.login);
 router.post('/register', authController.register);
-router.use(tokenRoutes);
+router.use('/token', tokenRoutes);
 
 module.exports = router;

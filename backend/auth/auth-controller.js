@@ -3,33 +3,10 @@ const bcrypt = require('bcryptjs');
 const User = require('./user-model');
 const util = require('./util');
 
-const secret = process.env.SECRET;
-
-const signToken = (user) => {
-    return jwt.sign({
-        username: user.username,
-        email: user.email,
-        isAdmin: user.isAdmin 
-    }, secret, { expiresIn: '1h'});
-}
+const secret = process.env.SECRET; 
 
 exports.login = async (req, res, next) => {
     const { username, password } = req.body;
-
-    const authHeader = req.get('Authorization')
-    if (!authHeader) {
-        return res.status(401).json({ message: 'No Authorization header found' });
-    }
-
-    const token = authHeader.split(' ')[1];
-    if (!jwt.decode(token)) {
-        return res.status(401).json({ message: 'Token not valid' });
-    }
-
-    const decodedToken = jwt.verify(token, secret);
-    if (!decodedToken) {
-        return res.status(401).json({ message: 'Not authenticated.' });
-    }
 
     if (!username) {
         return res.status(400).json({ message: 'You need to enter a username.'});
@@ -51,20 +28,17 @@ exports.login = async (req, res, next) => {
             return res.status(404).json({ message: 'Could not find user.' });
         }
 
-        const token = signToken(userFound);
+        const token = util.signToken(userFound);
         await util.setToCache(username + '_token', token);
     
-        res.status(200).json(token);
+        res.status(200).json({
+            access_token: token
+        });
         
     } catch (err) {
         return next(err);
     }
 };
-
-// exports.logout = async (req, res, next) => {
-//    
-//
-// }
 
 exports.register = async (req, res, next) => {
 
@@ -105,7 +79,7 @@ exports.register = async (req, res, next) => {
             return res.status(409).json({ message: 'Could not create user.'});
         }
 
-        const token = signToken(username, email);
+        const token = util.signToken(user);
         await util.setToCache(username + '_token', token);
         
         res.status(200).json(token);
