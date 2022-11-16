@@ -1,0 +1,20 @@
+.main-selector {
+    width: 120px;
+    height: 30px;
+    color: white;
+    /* background-color: #272727; */
+    border-radius: 5px;
+    border: none;
+    font-size: large;
+}
+
+input[type="file"] {
+    display: none
+}
+
+input:hover {
+    /* background-color: #8f8f8f; */
+    box-shadow: 0px 15px 20px rgba(82, 82, 82, 0.4);
+    /* color: #fff; */
+    transform: translateY(1px);
+}
