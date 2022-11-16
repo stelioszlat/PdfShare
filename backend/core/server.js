@@ -13,6 +13,7 @@ const settingsRoutes = require('./routes/settings-routes');
 const connectDb = require('./util/db-util');
 const cache = require('./util/redis-util');
 const apiLogger = require('./util/log-util');
+const { authenticate, isAdmin } = require('./util/auth-util');
 const swaggerConfig = require('./swagger.json');
 
 dotenv.config();
@@ -25,11 +26,11 @@ app.use(apiLogger);
 app.use(cors());
 
 // app.use(log);
-app.use('/api/metadata', metaRoutes);
+app.use('/api/metadata', authenticate, isAdmin, metaRoutes);
 app.use('/api/logging', loggingRoutes);
-app.use('/api/search', searchRoutes);
-app.use('/api/settings', settingsRoutes);
-app.use('/api-docs', swagger.serve, swagger.setup(swaggerConfig));
+app.use('/api/search', authenticate, searchRoutes);
+app.use('/api/settings', authenticate, settingsRoutes);
+app.use('/api-docs', authenticate, swagger.serve, swagger.setup(swaggerConfig));
 app.use(errorRoutes);
 
 

@@ -117,7 +117,7 @@
                 }
             }
         },
-        "/auth/token/{userId}/new": {
+        "/auth/token/{userId}": {
             "post": {
                 "summary": "Create a new token",
                 "tags": ["Authentication"],
@@ -141,9 +141,7 @@
                         }
                     }
                 }
-            }
-        },
-        "/auth/token/{userId}": {
+            },
             "get": {
                 "summary": "Get a token by a user's id",
                 "tags": ["Authentication"],
@@ -168,33 +166,7 @@
                     }
                 }
             }
-        },
-        "/auth/token/{userId}/refresh": {
-            "post": {
-                "summary": "Refresh a user's token",
-                "tags": ["Authentication"],
-                "parameters": [
-                    {
-                        "name": "userId",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "message": {
-                                "type": "string"
-                            },
-                            "token": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            }
-        },  
+        }, 
         "/user/all": {
             "get": {
                 "summary": "Retrieve all users",
@@ -221,7 +193,7 @@
                         "in": "body",
                         "name": "user",
                         "schema": {
-                           "$ref": "#/definitions/Register"
+                           "$ref": "#/definitions/User"
                         },
                         "required": true
                     }
@@ -298,6 +270,16 @@
         }
     },
     "definitions": {
+        "Login": {
+            "properties": {
+                "username": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
         "User": {
             "properties": {
                 "username": {
@@ -322,7 +304,7 @@
                 "email": {
                     "type": "string"
                 },
-                "passowrd": {
+                "password": {
                     "type": "string"
                 },
                 "rePassword": {

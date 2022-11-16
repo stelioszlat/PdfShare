@@ -13,18 +13,6 @@
     "basePath": "/api",
     "tags": [
         {
-            "name": "Authentication",
-            "description": "Authentication and token management endpoints (part of the auth service)"
-        },
-        {
-            "name": "Users",
-            "description": "User management endpoints (part of the auth service)"
-        },
-        {
-            "name": "Extracting",
-            "description": "Extracting and saving files to the file system"
-        },
-        {
             "name": "Metadata",
             "description": "Endpoints that create and retrieve metadata as well as edits"
         },
@@ -49,7 +37,7 @@
     "consumes": ["application/json"],
     "produces": ["application/json"],
     "paths": {
-        "/search/graphql": {
+        "/search": {
             "post": {
                 "summary": "The search endpoint implemented with grapqh-express",
                 "tags": ["Search"],
@@ -59,31 +47,11 @@
                         "in": "body",
                         "name": "search",
                         "schema": {
-                            "required": ["query"],
-                            "parameters": {
-                                "query": {
-                                    "type": "string"
-                                }
-                            }
-                        }
+                           "$ref": "#/definitions/Search"
+                        },
+                        "required": true
                     }
                 ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "message": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/extracting/file": {
-            "post": {
-                "summary": "Send a file to extract its content and save it to the file system",
-                "tags": ["Extracting"],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -426,6 +394,22 @@
         }
     },
     "definitions": {
+        "Search": {
+            "properties": {
+                "file": {
+                    "type": "string"
+                },
+                "author": {
+                    "type": "string"
+                },
+                "keywords": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
         "Metadata": {
             "required": ["fileName"],
             "properties": {
