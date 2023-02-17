@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const User = require('../models/user');
-const util = require('../auth/util/util');
+const util = require('../util/auth-util');
 
 const secret = process.env.SECRET; 
 

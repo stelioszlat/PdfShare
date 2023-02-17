@@ -5,18 +5,18 @@ const dotenv = require('dotenv');
 const swagger = require('swagger-ui-express');
 const os = require('os');
 
-const metaRoutes = require('./core/routes/meta-routes');
-const loggingRoutes = require('./core/routes/logging-routes');
+const metaRoutes = require('./routes/meta-routes');
+const loggingRoutes = require('./routes/logging-routes');
 const errorRoutes = require('./routes/error-routes');
-const searchRoutes = require('./core/routes/search-routes');
-const authRoutes = require('./auth/routes/auth-routes');
-const userRoutes = require('./auth/routes/user-routes');
-const { extract, uploader } = require('./util/extract');
+const searchRoutes = require('./routes/search-routes');
+const authRoutes = require('./routes/auth-routes');
+const userRoutes = require('./routes/user-routes');
+const { extract, uploader } = require('./util/extract-util');
 
-const connectDb = require('./core/util/db-util');
-const cache = require('./core/util/redis-util');
-const apiLogger = require('./core/util/log-util');
-const { getInfo } = require('./core/util/elastic-util');
+const connectDb = require('./util/db-util');
+const cache = require('./util/redis-util');
+const apiLogger = require('./util/log-util');
+const { getInfo } = require('./util/elastic-util');
 const { log } = require('./controllers/logging-controller');
 // const swaggerConfig = require('./swagger.json');
 

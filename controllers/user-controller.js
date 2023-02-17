@@ -2,9 +2,9 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const dotenv = require('dotenv');
-const User = require('../models/user-model');
+const User = require('../models/user');
 
-const util = require('../util/util');
+const util = require('../util/auth-util');
 
 dotenv.config();
 const host = process.env.REDIS_HOST;

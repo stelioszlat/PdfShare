@@ -2,7 +2,7 @@ const Router = require('express');
 
 const tokenRoutes = require('./token-routes');
 const authController = require('../controllers/auth-controller');
-const { userExists } = require('../auth/util/util');
+const { userExists } = require('../util/auth-util');
 
 const router = Router();
 
