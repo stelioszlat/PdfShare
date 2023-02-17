@@ -1,3 +1,3 @@
-# PdfShare - hybrid cloud pdf file sharing system
+# PdfShare - a microservice oriented pdf file storage and sharing system
 
-A Hybrid system that combines p2p file sharing and cloud-oriented metadata management and indexing distributed back to the nodes
+Pdfshare is a metadata and file entry for pdf files that can be accessed and retrieved using a sophisticated search engine with the help of ElasticSearch and a scalable architecture of dockerized services.
