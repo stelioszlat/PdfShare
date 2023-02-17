@@ -1,0 +1,16 @@
+.file-records {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    margin: 5px;
+}
+
+.file-record {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+}
+
+.file-records td tr {
+    padding: 10px;
+}

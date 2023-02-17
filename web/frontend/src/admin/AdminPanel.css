@@ -5,15 +5,17 @@
 }
 
 .side-menu {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
     width: 15%;
     height: 100%;
-    padding: 10px;
-    margin: 10px;
+    padding: 20px;
     border-right: 1px solid #727272;
 }
 
 .main-panel {
-    height: 100%
+    margin-left: 20px;
 }
 
 .table-labels {
@@ -29,7 +31,3 @@
     margin-right: 50px;
 }
 
-.user-records {
-    padding: 20px;
-    margin: 10px;
-}

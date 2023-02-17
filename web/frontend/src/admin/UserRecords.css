@@ -1,0 +1,17 @@
+.user-records {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 20px;
+    margin: 10px;
+}
+
+.user-record {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+}
+
+.user-records td tr {
+    padding: 10px;
+}
