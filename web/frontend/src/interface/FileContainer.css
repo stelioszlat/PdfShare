@@ -1,8 +1,5 @@
 .file-container {
+    display: grid;
+    grid-template-columns: repeat(3, 2fr);
     margin: 50px;
-}
-
-.file-row {
-    display: flex;
-    flex-direction: row;
 }

@@ -1,4 +1,4 @@
-.button {
+.add-button {
     /* padding: 15px 15px; */
     font-size: 46px;
     color: #272727;
@@ -15,6 +15,7 @@
     height: 56px;
 }
 
-.button:hover {
-    background-color: #f1f1f1;
+.add-button:hover {
+    background-color: #fdfdfd;
+    transform: scale(0.99);
 }

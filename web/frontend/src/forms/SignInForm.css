@@ -23,7 +23,7 @@
     margin-top: 60px;
 }
 
-.signin-form .text-button {
+.signin-form .forgot-button {
     font-size: 14px;
     margin-top: 15px;
     color: #727272;
@@ -31,6 +31,17 @@
     border: none;
 }
 
+.signin-form .forgot-button:hover {
+    color: #272727;
+    font-size: 15px;
+}
+
+.signin-form .forgot-button:active {
+    color: #727272;
+    font-size: 14px;
+}
+
 .validation-message {
+    padding-bottom: 5px;
     color: #ff0000;
 }

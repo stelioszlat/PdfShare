@@ -21,3 +21,8 @@
 .signup-form button {
     margin-top: 20px;
 }
+
+.validation-message {
+    padding-bottom: 5px;
+    color: #ff0000;
+}

@@ -5,7 +5,9 @@ import './SignInForm.css';
 
 import Form from '../components/Form';
 import Button from '../components/Button';
+import TextButton from '../components/TextButton';
 import Error from '../error/Error';
+import { formActions } from '../store/forms'; 
 
 const SignInForm = props => {
     const dispatch = useDispatch();
@@ -30,8 +32,7 @@ const SignInForm = props => {
     }
 
     const forgotPasswordHandler = event => {
-        event.preventDefault();
-        dispatch({ type: 'showForgotPasswordForm' });
+        dispatch(formActions.showForgotPasswordForm());
     }
 
     const submitHandler = event => {
@@ -66,14 +67,19 @@ const SignInForm = props => {
             })
         })
         .then(response => {
-            if (!response.ok) {
-                return response.json().then(data => {
-                    setError(data);
-                });
-            }
+            return response.json().then(data => {
+                if (!response.ok) {
+                    return setError(data);
+                }
 
-            dispatch({ type: 'login' });
-
+                localStorage.setItem('token', data.access_token);
+                localStorage.setItem('userId', data.userId);
+                if (data.isAdmin) {
+                    dispatch(pageActions.showAdminPage());
+                } else {
+                    dispatch(formActions.showLoginForm());
+                }
+            });
         }).catch(err => {
             console.log(err);
             setError(err);
@@ -92,7 +98,7 @@ const SignInForm = props => {
                     <input type="text" name="username" value={enteredUsername} onChange={usernameChangeHandler}/><br/>
                     <label>Password</label>
                     <input type="password" name="password" value={enteredPassword} onChange={passwordChangeHandler}/><br/>
-                    <button className="text-button" href="#" onClick={forgotPasswordHandler}>Forgot your password? Click here</button>
+                    <button className="forgot-button" onClick={forgotPasswordHandler}>Forgot your password? Click here</button>
                     <Button label="Sign In" onClick={submitHandler}/>   
                     
                     {error ? <Error message={error.message} /> :

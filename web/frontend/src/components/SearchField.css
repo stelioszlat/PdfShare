@@ -31,3 +31,9 @@
     background-color: white;
     color: #272727;
 }
+
+.file-results {
+    width: 500px;
+    height: 30px;
+    background-color: white;
+}

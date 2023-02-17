@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 
 import './File.css';
@@ -12,7 +12,7 @@ const File = props => {
     }
 
     const deleteFileHandler = event => {
-
+        props.onDelete();
     }
 
     return (
@@ -26,7 +26,7 @@ const File = props => {
             <div className="file-footer">
                 <div className="file-details">
                     <p>{ props.name }</p>
-                    <p>{ props.lastUpdated }</p>
+                    <p>Last updated: { new Date(props.lastUpdated).toLocaleDateString() }</p>
                 </div>
                 <div className="file-control">
                     <IconButton name="edit" src="ci_edit.png" onClick={editHandler} />

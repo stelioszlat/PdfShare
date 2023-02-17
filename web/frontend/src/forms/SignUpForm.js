@@ -84,14 +84,14 @@ const SignUpForm = props => {
             })
         })
         .then(response => {
-            if (!response.ok) {
-                return response.json().then(data => {
+            return response.json().then(data => {
+                if (!response.ok) {
                     setError(data);
-                });
-            }
+                }
 
-            dispatch({ type: 'login' });
-
+                localStorage.setItem('token', data.access_token);
+                dispatch({ type: 'login' });
+            });
         }).catch(err => {
             console.log(err);
             setError(err);

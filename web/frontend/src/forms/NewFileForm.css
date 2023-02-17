@@ -6,6 +6,16 @@
     flex-direction: column;
 }
 
+/* .main-selector {
+    width: 120px;
+    height: 30px;
+    color: white;
+    background-color: #272727;
+    border-radius: 5px;
+    border: none;
+    font-size: large;
+} */
+
 .newfile-form label {
     margin: 5px;
 }
@@ -20,4 +30,8 @@
 
 .newfile-form button {
     margin-top: 250px;
+}
+
+.validation-message {
+    color: red;
 }
