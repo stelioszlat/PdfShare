@@ -2,7 +2,7 @@ version: "3.8"
 services:
   mongo:
     image: mongo:latest
-    container_name: mongo-1
+    container_name: database
     ports:
       - 27017:27017
     volumes:
@@ -11,7 +11,7 @@ services:
       - backend
   elastic:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.17.6
-    container_name: elastic-1
+    container_name: indexing
     environment:
       - discovery.type=single-node
       - xpack.security.enabled=false
@@ -22,7 +22,7 @@ services:
       - backend
   kibana:
     image: docker.elastic.co/kibana/kibana:7.17.6
-    container_name: kibana-1
+    container_name: visualisation
     environment:
       - ELASTICSEARCH_HOSTS=http://elastic-2:9200
     ports:
@@ -31,60 +31,18 @@ services:
       - backend
   redis:
     image: redis:latest
-    container_name: cache-1
+    container_name: cache
     ports:
       - '6379:6379'
     volumes:
       - /data/cache:/data
     networks:
       - backend
-  nginx_load_balancer:
-    image: nginx:latest
-    container_name: http-1
-    volumes:
-      - './nginx/nginx.conf:/etc/nginx/nginx.conf'
-    ports:
-      - '80:80'
-  web:
-    build: ../web
-    ports:
-      - '8090:8090'
-    networks:
-      - backend
-  core:
-    build: ./core
-    links:
-      - redis
-    env_file:
-      - ./core/.env
+  pdfshare:
+    image: node:alpine
+    container_name: server
     ports:
       - '8080:8080'
-    networks:
-      - backend
-  extra:
-    build: ./extra
-    env_file:
-      - ./extra/.env
-    ports:
-      - '8070:8070'
-    volumes:
-      - /extra/files:/home/beckend/extra/files
-    networks:
-      - backend
-  auth:
-    build: ./auth
-    env_file:
-      - ./auth/.env
-    ports:
-      - '8060:8060'
-    networks:
-      - backend
-  mail:
-    build: ./mail
-    env_file:
-      - ./mail/.env
-    ports:
-      - '8085:8085'
     networks:
       - backend
 networks:
