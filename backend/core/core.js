@@ -13,7 +13,6 @@ const searchRoutes = require('./routes/search-routes');
 const connectDb = require('./util/db-util');
 const cache = require('./util/redis-util');
 const apiLogger = require('./util/log-util');
-const { getInfo } = require('./util/elastic-util');
 const { log } = require('./controllers/logging-controller');
 const swaggerConfig = require('./swagger.json');
 
@@ -42,7 +41,6 @@ cache.connect().then(() => {
     app.listen(port, host, () => {
         console.log(`Running server on ${host}:${port}`);
     });
-    getInfo();
     console.log('Host: ' + os.hostname());
 }).catch(err => {
     console.log(err);

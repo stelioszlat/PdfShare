@@ -2,7 +2,6 @@ const { Router } = require("express");
 
 const meta = require("../controllers/meta-controller");
 // const metaValidation = require('../validation/metadataValidation');
-const { createIndex, deleteIndex } = require('../util/elastic-util');
 
 const router = Router();
 

@@ -1,13 +1,12 @@
 const { Router } = require('express');
 
 const cache = require('../util/redis-util');
-const { searchIndex } = require('../util/elastic-util');
 const Metadata = require('../models/metadata');
 
 const router = Router();
 
 // /api/search
-router.post('', searchIndex, async (req, res, next) => {
+router.post('', async (req, res, next) => {
 
     const { file, author, uploader } = req.query;
     const { keywords } = req.body;
