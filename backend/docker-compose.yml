@@ -79,14 +79,6 @@ services:
       - '8060:8060'
     networks:
       - backend
-  mail:
-    build: ./mail
-    env_file:
-      - ./mail/.env
-    ports:
-      - '8085:8085'
-    networks:
-      - backend
 networks:
   backend:
     driver: overlay
