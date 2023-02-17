@@ -4,7 +4,7 @@ const morgan = require('morgan');
 const dotenv = require('dotenv');
 const jwt = require('jsonwebtoken');
 
-const User = require('./user-model');
+const User = require('../models/user-model');
 
 dotenv.config();
 const host = process.env.REDIS_HOST;
@@ -27,19 +27,27 @@ exports.connectDb = (uri, options) => {
 }
 
 exports.connectCache = async () => {
-    client.on('error', (err) => {
+    await client.connect().then(() => { 
+        console.log("Connected to cache on " + host) 
+    }).catch(err => {
         console.log(err);
     });
-
-    await client.connect().then(() => { console.log("Connected to cache on " + host) });
 }
 
 exports.getFromCache = async (key) => {
-    return await client.get(key);
+    return await client.get(key).then(data => { return JSON.parse(data)});
 }
 
 exports.setToCache = async (key, value) => {
     return await client.set(key, JSON.stringify(value));
+}
+
+exports.deleteFromCache = async (key) => {
+    return await client.del(key);
+}
+
+exports.getManyFromCache = async (pattern) => {
+    return await client.keys(pattern);
 }
 
 exports.apiLogger = morgan(function (tokens, req, res) {
@@ -105,6 +113,9 @@ exports.signToken = (user) => {
 }
 
 exports.authenticate = async (req, res, next) => {
+    if (req.method === 'OPTIONS') {
+        return next();
+    }
     try {
         const authHeader = req.get('Authorization')
         if (!authHeader) {
@@ -113,7 +124,7 @@ exports.authenticate = async (req, res, next) => {
 
         const token = authHeader.split(' ')[1];
         if (!jwt.decode(token)) {
-            return res.status(401).json({ message: 'Token not valid' });
+            return res.status(401).json({ message: 'Invalid Token' });
         }
 
         const decodedToken = jwt.verify(token, secret);
@@ -123,6 +134,10 @@ exports.authenticate = async (req, res, next) => {
 
         if (decodedToken.isAdmin) {
             req.isAdmin = true;
+        }
+
+        if (decodedToken.username) {
+            req.username = decodedToken.username;
         }
         
         next();
@@ -134,6 +149,22 @@ exports.authenticate = async (req, res, next) => {
 exports.isAdmin = (req, res, next) => {
     if (!req.isAdmin) {
         return res.status(403).json({ message: "You are not authorized to access this resource" });
+    }
+    next();
+}
+
+exports.isSelf = async (req, res, next) => {
+    const userId = req.param.userId;
+    if (userId) {
+        try {
+            const user = await User.findById(userId);
+
+            if (!(user.username === req.username)) {
+                return res.status(403).json({ message: "You are not authorized to access this resource (self)" });
+            }
+        } catch (err) {
+            return next(err);
+        }
     }
     next();
 }

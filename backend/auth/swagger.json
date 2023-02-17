@@ -24,6 +24,16 @@
     "schemes": ["http"],
     "consumes": ["application/json"],
     "produces": ["application/json"],
+    "securityDefinitions": {
+        "Bearer": {
+            "type": "apiKey",
+            "scheme": "Bearer",
+            "name": "Authorization",
+            "in": "header",
+            "description": "Bearer token used for user authentication"
+        }
+    },
+    "security": [ { "Bearer": [] } ],
     "paths": {
         "/auth/login": {
             "post": {
@@ -116,7 +126,7 @@
                     }
                 }
             }
-        },
+        },  
         "/auth/token/{userId}": {
             "post": {
                 "summary": "Create a new token",

@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 const dotenv = require('dotenv');
 
-const User = require('./user-model');
+const User = require('../models/user-model');
 
 dotenv.config();
 const secret = process.env.SECRET;
@@ -58,3 +58,21 @@ exports.getTokenByUserId = async (req, res, next) => {
         return next(err);
     }
 };
+
+exports.getTokens = async (req, res, next) => {
+    let tokens = []
+    try {
+        const users = await User.find();
+        console.log(users );
+        for (let user in users) {
+            tokens.push({
+                username: user.username,
+                token: user.apiToken
+            });
+        }
+        
+        res.status(200).json({ tokens });
+    } catch (err) {
+        return next(err);
+    }
+}
