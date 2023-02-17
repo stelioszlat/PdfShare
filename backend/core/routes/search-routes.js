@@ -1,40 +1,32 @@
 const { Router } = require('express');
 
 const cache = require('../util/redis-util');
-const index = require('../util/elastic-util');
+const { searchIndex } = require('../util/elastic-util');
 const Metadata = require('../models/metadata');
-const Search = require('../models/search');
 
 const router = Router();
 
 // /api/search
-router.post('', async (req, res, next) => {
+router.post('', searchIndex, async (req, res, next) => {
 
-    const { file, author, keywords } = req.body;
+    const { file, author, uploader } = req.query;
+    const { keywords } = req.body;
+
+    if (!file || !author || !uploader || !keywords) {
+        res.status(400).json({ message: 'Query not found.' });
+    }
 
     try {
-
-        const search = new Search({
-            fileName: file,
-            author: author,
-            keywords: keywords
-        });
-
-        await search.save();
 
         const cachedFile = await cache.get(JSON.stringify(file));
 
         if (cachedFile) {
-            return res.status(200).json(JSON.parse(cachedFile));
+            return res.status(200).json(JSON.parse(...cachedFile));
         }
 
-        // search also in elastic cluster...
-        
-        // const indexedFile = await index.searchIndex(file)
-
-        // if (indexedFile) {
-        //     return res.status(200).json(indexedFile);
-        // }
+        if (req.body.result) {
+            res.status(200).json({ result });
+        }
 
         const dbFile = await Metadata.find({
             fileName: file

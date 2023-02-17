@@ -1,57 +1,65 @@
 const express = require('express');
 const { Client } = require('elasticsearch');
 const json = require('body-parser');
+const dotenv = require('dotenv');
+
+dotenv.config();
 
 const client = new Client({
     node: process.env.ELASTIC_CLUSTER_TEST
 });
 
-exports.getInfo = async (req, res, next) => {
+exports.getInfo = async () => {
     client.cluster.health({}, function (err, resp, status) {
-        if (resp) {
-            console.log("Cluster health: ", resp);
-            res.status(status).json(resp);
+        if (err) {
+            console.log(err);
         }
-        console.log(err);
-        return next(resp);
+        if (resp) {
+            console.log("Connected to elasticsearch cluster on " + process.env.ELASTIC_CLUSTER_TEST);
+            console.log("Elasticsearch cluster status: " + status)
+        }
     });
 }
 
-exports.addIndex = async (req, res, next) => {
-    const {indexName, owner, keywords} = req.body;
+exports.createIndex = async (req, res, next) => {
+    const {fileName, author, uploader, keywords} = req.query;
 
-    client.indices.create(
-        {
-            index: indexName,
-        },
-        function (err, resp, status) {
-            if (err) {
-                console.log(err);
-                res.status(400).json({ err });
-            }
-            else {
-                console.log("Created ", resp);
-            }
-        }
-    );
+    if (!fileName) {
+        return res.status(400).json({ message: 'File name is required to create an index'});
+    }
 
     try {
+        client.indices.create(
+            {
+                index: fileName,
+            },
+            function (err, resp, status) {
+                if (err) {
+                    return next(console.log(err));
+                }
+                else {
+                    console.log("Created ", resp);
+                }
+            }
+        );
+
         client.index(
             {
-                index: indexName,
+                index: fileName,
                 body: {
-                    owner: owner,
+                    author: author,
+                    uploader: uploader,
                     keywords: keywords
                 }
             },
             function (err, resp, status) {
                 if (err) {
-                    console.log(resp);
-                    res.status(status).json({ err });
+                    return next(err);
                 }
                 else {
-                    res.status(status).json({ message: "Created index", resp});
+                    console.log(resp);
                 }
+                next();
             }
         );
     } catch (err) {
@@ -60,38 +68,41 @@ exports.addIndex = async (req, res, next) => {
 }
 
 exports.deleteIndex = async (req, res, next) => {
-    const { indexName } = req.body;
+    const { fileName } = req.body;
 
     client.indices.delete(
         {
-            index: indexName,
+            index: fileName,
         },
         function (err, resp, status) {
             if (err) {
-                console.log(err);
-                res.status(404).json({ err });
+                return next(err);
             } else {
                 console.log("Deleted", resp);
-                res.status(200).json({ message: "Deleted index ", resp});
             }
+            next();
         }
     );
 }
 
 exports.searchIndex = async (req, res, next) => {
-    const { indexName, owner } = req.body;
+    const { fileName, author, uploader } = req.query;
+    const { keywords } = req.body;
 
     try {
         const result = await client.search({
-            index: indexName,
-            owner: owner
+            index: fileName,
+            author: author,
+            uploader: uploader,
+            keywords: keywords
         });
 
         if (!result) {
-            res.status(404).json({ message: "Could not find anything" }); // bad 
+            return next();
         }
 
-        res.status(200).json({ message: "Successfull query", result});
+        req.body.result = result
+        next();
     } catch (err) {
         return next(err);
     }

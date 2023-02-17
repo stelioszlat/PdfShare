@@ -1,13 +1,22 @@
 const Log = require('../models/log');
 
-exports.createLog = async (req, res, next) => {
-    
+exports.log = async (req, res, next) => {
     try {
-        persistLog(req);
-
-        res.status(204).json();
-    } catch(err){
-        return next(err);
+        const newLog = new Log({
+            userName: req.username,
+            logTime: new Date(),
+            ipAddress: req.ip,
+            url: req.originalUrl,
+            authorization: req.header('Authorization')?.split(' ')[1],
+            message: req.message
+        });
+    
+        const newLogResult = await newLog.save();
+        console.log(newLogResult);
+    } catch(err) {
+        console.log(err);
+    } finally {
+        next();
     }
 };
 
@@ -50,21 +59,3 @@ exports.getLogs = async (req, res, next) => {
         return next(err);
     }
 };
-
-const persistLog = async (req) => {
-    const newLog = new Log({
-        userName: req.username,
-        logTime: new Date(),
-        ipAddress: req.ip,
-        url: req.originalUrl,
-        authorization: req.get('Authorization'),
-        message: req.message
-    });
-
-    try {
-        await newLog.save();
-    } catch (err) {
-        console.log('Error while trying to log action: ' + newLog);
-        throw new Error();
-    }
-}

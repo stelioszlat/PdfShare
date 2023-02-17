@@ -5,15 +5,18 @@ dotenv.config();
 const secret = process.env.SECRET;
 
 exports.authenticate = async (req, res, next) => {
+    if (req.method === 'OPTIONS') {
+        return next();
+    }
     try {
-        const authHeader = req.get('Authorization')
+        const authHeader = req.get('Authorization');
         if (!authHeader) {
             return res.status(401).json({ message: 'No Authorization header found' });
         }
 
         const token = authHeader.split(' ')[1];
         if (!jwt.decode(token)) {
-            return res.status(401).json({ message: 'Token not valid' });
+            return res.status(401).json({ message: 'Invalid token' });
         }
 
         const decodedToken = jwt.verify(token, secret);

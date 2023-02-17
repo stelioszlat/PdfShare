@@ -8,10 +8,6 @@ const client = createClient({
 });
 
 exports.connect = async () => {
-    client.on('error', (err) => {
-        console.log(err);
-    });
-
     await client.connect().then(() => { console.log("Connected to cache on " + host) });
 }
 
@@ -25,9 +21,17 @@ exports.connect = async () => {
 // }
 
 exports.get = async (key) => {
-    return await client.get(key);
+    return await client.get(key).then(data => { return JSON.parse(data)});
 }
 
 exports.set = async (key, value) => {
     return await client.set(key, JSON.stringify(value));
+}
+
+exports.delete = async (key) => {
+    return await client.del(key);
+}
+
+exports.keys = async (pattern) => {
+    return await client.keys(pattern);
 }

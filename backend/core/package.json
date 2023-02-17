@@ -2,13 +2,13 @@
   "name": "metadata",
   "version": "0.0.1",
   "description": "",
-  "main": "./dist/src/server.js",
+  "main": "./dist/src/core.js",
   "engines": {
     "node": "16.14.0"
   },
   "scripts": {
-    "start": "node server.js",
-    "dev": "nodemon server.js",
+    "start": "node core.js",
+    "dev": "nodemon core.js",
     "test": "mocha"
   },
   "repository": {
@@ -31,7 +31,7 @@
     "get-json": "^1.0.1",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.12.3",
-    "redis": "^4.4.0"
+    "redis": "^4.5.0"
   },
   "devDependencies": {
     "chai": "^4.3.6",

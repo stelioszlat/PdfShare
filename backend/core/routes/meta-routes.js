@@ -1,9 +1,8 @@
 const { Router } = require("express");
 
 const meta = require("../controllers/meta-controller");
-const metaValidation = require('../validation/metadataValidation');
-
-const editRoutes = require('./edit-routes');
+// const metaValidation = require('../validation/metadataValidation');
+const { createIndex, deleteIndex } = require('../util/elastic-util');
 
 const router = Router();
 
@@ -12,6 +11,5 @@ router.post("/file/new", meta.addMetadata);
 router.get("/files", meta.getMetadata);
 router.get("/file/:fid", meta.hasValidId, meta.getMetadataById);
 router.delete('/file/:fid', meta.hasValidId, meta.deleteMetadataById);
-router.use(editRoutes);
 
 module.exports = router;

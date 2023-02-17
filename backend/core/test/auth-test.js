@@ -1,17 +1,21 @@
 const expect = require('chai').expect;
 const sinon = require('sinon');
+const jwt = require('jsonwebtoken');
 
-const auth = require('../controllers/auth-controller');
+const { authenticate, isAdmin } = require('../util/auth-util');
 
 describe('Authentication tests', () => {
 
-    it('should throw an error with no authentication', () => {
+    it('should throw an error with no authentication header', () => {
         const req = {
             get: () => {
-                return 'null';
+                return null;
             }
         }
 
-        expect(auth.authenticate.bind(this, req, {}, () => {})).to.throw();
+        sinon.stub(jwt, 'verify');
+        jwt.verify.returns({ userId: 'abc' });
+        expect(req).to.have.property('isAdmin');
+        jwt.verify.restore();
     });
 })

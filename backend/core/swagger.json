@@ -21,35 +21,70 @@
             "description": "User logs and actions"
         },
         {
-            "name": "Settings",
-            "description": "Settings endpoints"
+            "name": "Search",
+            "description": "Search endpoints"
         },
         {
             "name": "Admin",
             "description": "Endpoints used by admins only"
-        },
-        {
-            "name": "Search",
-            "description": "Searching endpoints"
         }
     ],
     "schemes": ["http"],
     "consumes": ["application/json"],
     "produces": ["application/json"],
+    "securityDefinitions": {
+        "Bearer": {
+            "type": "apiKey",
+            "scheme": "Bearer",
+            "name": "Authorization",
+            "in": "header",
+            "description": "Bearer token used for user authentication"
+        }
+    },
+    "security": [ { "Bearer": [] } ],
     "paths": {
         "/search": {
             "post": {
-                "summary": "The search endpoint implemented with grapqh-express",
+                "summary": "Search files",
                 "tags": ["Search"],
                 "consumes": "application/json",
                 "parameters": [
                     {
+                        "in": "query",
+                        "name": "file",
+                        "type": "string",
+                        "required": false
+                    },
+                    {
+                        "in": "query",
+                        "name": "author",
+                        "type": "string",
+                        "required": false
+                    },
+                    {
+                        "in": "query",
+                        "name": "uploader",
+                        "type": "string",
+                        "required": false
+                    },
+                    {
                         "in": "body",
-                        "name": "search",
+                        "name": "keywords",
                         "schema": {
-                           "$ref": "#/definitions/Search"
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "keyword": {
+                                        "type": "string"
+                                    },
+                                    "appeared": {
+                                        "type": "integer"
+                                    }
+                                }
+                            }
                         },
-                        "required": true
+                        "required": false
                     }
                 ],
                 "responses": {
@@ -115,7 +150,7 @@
         "/metadata/files": {
             "get": {
                 "summary": "Get metadata of files",
-                "tags": ["Metadata", "Admin"],
+                "tags": ["Metadata"],
                 "parameters": [
                     {
                         "name": "page",
@@ -141,10 +176,32 @@
                 }
             }
         },
+        "/metadata/files/user/{userId}": {
+            "get": {
+                "summary": "Get files by their uploader's id",
+                "tags": ["Metadata"],
+                "parameters": [
+                    {
+                        "name": "userId",
+                        "in": "path",
+                        "required": true,
+                        "description": "User id"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Metadata"
+                        }
+                    }
+                }
+            }
+        },
         "/metadata/file/{fileId}": {
             "get": {
                 "summary": "Add a new file's metadata to the system",
-                "tags": ["Metadata", "Admin"],
+                "tags": ["Metadata"],
                 "parameters": [
                     {
                         "name": "fileId",
@@ -180,117 +237,6 @@
                             "$ref": "#/definitions/Metadata"
                         }
                     } 
-                }
-            }
-        },
-        "/metadata/edits/{fileId}": {
-            "get": {
-                "summary": "Add a new file's metadata to the system",
-                "tags": ["Metadata"],
-                "parameters": [
-                    {
-                        "name": "fileId",
-                        "in": "path",
-                        "required": true,
-                        "description": "File id "
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/Edit"
-                            }
-                        }
-                    } 
-                }
-            }
-        },
-        "/metadata/edit/{fileId}": {
-            "post": {
-                "summary": "Edit a file by its id",
-                "tags": ["Metadata"],
-                "parameters": [
-                    {
-                        "name": "fileId",
-                        "in": "path",
-                        "required": true,
-                        "description": "File id "
-                    },
-                    {
-                        "in": "body",
-                        "name": "edit",
-                        "schema": {
-                            "$ref": "#/definitions/Edit"
-                        },
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/Metadata"
-                        }
-                    } 
-                }
-            }
-        },
-        "/metadata/editors/{fileId}": {
-            "get": {
-                "summary": "Get all editors of a file",
-                "tags": ["Metadata"],
-                "parameters": {
-                    "fileId": {
-                        "type": "string",
-                        "in": "path",
-                        "required": true
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/User"
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/logging/log": {
-            "post": {
-                "summary": "Create a log for an action",
-                "tags": ["Logging"],
-                "consumes": "application/json",
-                "parameters": [
-                    {
-                        "name": "log",
-                        "in": "body",
-                        "schema": {
-                            "properties": {
-                                "username": {
-                                    "type": "string"
-                                },
-                                "message": {
-                                    "type": "string"
-                                }
-                            }
-                        },
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/Log"
-                        }
-                    }
                 }
             }
         },
@@ -342,74 +288,9 @@
                     }
                 }
             }
-        },
-        "/settings": {
-            "get": {
-                "summary": "Retrieve all default settings",
-                "tags": ["Settings"],
-                "parameters": {
-                    "username": {
-                        "type": "string"
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/Setting"
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/settings/new": {
-            "post": {
-                "summary": "Add a new setting",
-                "tags": ["Settings"],
-                "consumes": "application/json",
-                "parameters": [
-                    {
-                        "name": "setting",
-                        "in": "body",
-                        "schema": {
-                            "$ref": "#/definitions/Setting"
-                        },
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "message": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            }
         }
     },
     "definitions": {
-        "Search": {
-            "properties": {
-                "file": {
-                    "type": "string"
-                },
-                "author": {
-                    "type": "string"
-                },
-                "keywords": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                }
-            }
-        },
         "Metadata": {
             "required": ["fileName"],
             "properties": {
