@@ -27,6 +27,14 @@
         {
             "name": "Admin",
             "description": "Endpoints used by admins only"
+        },
+        {
+            "name": "Authentication",
+            "description": "Authentication and token management endpoints (part of the auth service)"
+        },
+        {
+            "name": "Users",
+            "description": "User management endpoints (part of the auth service)"
         }
     ],
     "schemes": ["http"],
@@ -288,6 +296,249 @@
                     }
                 }
             }
+        },
+        "/auth/login": {
+            "post": {
+                "summary": "Login to the service. Returns a jwt token.",
+                "tags": ["Authentication"],
+                "consumes": "application/json",
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "login",
+                        "schema": {
+                            "$ref": "#/definitions/Login"
+                        },
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "message": {
+                                "type": "string"
+                            },
+                            "token": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "message": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "message": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/logout": {
+            "post": {
+                "summary": "logout a user",
+                "tags": ["Authentication"],
+                "consumes": "application/json",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/User"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "message"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/register": {
+            "post": {
+                "summary": "Register to the service",
+                "tags": ["Authentication"],
+                "consumes": "application/json",
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "register",
+                        "schema": {
+                            "$ref": "#/definitions/Register"
+                        },
+                        "required": true
+                    }                    
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/User"
+                        }
+                    }
+                }
+            }
+        },  
+        "/auth/token/{userId}": {
+            "post": {
+                "summary": "Create a new token",
+                "tags": ["Authentication"],
+                "parameters": [
+                    {
+                        "name": "userId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "message": {
+                                "type": "string"   
+                            },
+                            "token": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "get": {
+                "summary": "Get a token by a user's id",
+                "tags": ["Authentication"],
+                "parameters": [
+                    {
+                        "name": "userId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "message": {
+                                "type": "string"
+                            },
+                            "token": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        }, 
+        "/user/all": {
+            "get": {
+                "summary": "Retrieve all users",
+                "tags": ["Users", "Admin"],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/User"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/user": {
+            "post": {
+                "summary": "Create a new user",
+                "tags": ["Users", "Admin"],
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "user",
+                        "schema": {
+                           "$ref": "#/definitions/User"
+                        },
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "message": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/user/{userId}": {
+            "get": {
+                "summary": "Retrieve a user by its id",
+                "tags": ["Users", "Admin"],
+                "parameters": [
+                    {
+                        "name": "userId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/User"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "summary": "Update a user by its id",
+                "tags": ["Users", "Admin"],
+                "parameters": [
+                    {
+                        "name": "userId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "message": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "summary": "Delete a user by its id",
+                "tags": ["Users", "Admin"],
+                "parameters": [
+                    {
+                        "name": "userId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -312,19 +563,6 @@
                 }
             }
         },
-        "Edit": {
-            "properties": {
-                "edit": {
-                    "type": "string"
-                },
-                "editor": {
-                    "type": "string"
-                },
-                "timeEdited": {
-                    "type": "string"
-                }
-            }
-        },
         "Log": {
             "properties": {
                 "userName": {
@@ -344,32 +582,45 @@
                 }
             }
         },
-        "User": {
-            "required": [
-                "userName"
-            ],
+        "Login": {
             "properties": {
-                "userName": {
+                "username": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "User": {
+            "properties": {
+                "username": {
                     "type": "string"
                 },
                 "email": {
                     "type": "string"
                 },
-                "password": {
-                    "type": "password"
+                "isAdmin": {
+                    "type": "boolean"
                 },
-                "lastLogin": {
+                "password": {
                     "type": "string"
                 }
-            }  
+            }
         },
-        "Setting": {
+        "Register": {
             "properties": {
                 "username": {
+                    "type": "string"       
+                },
+                "email": {
                     "type": "string"
                 },
-                "itemsPerPage": {
-                    "type": "integer"
+                "password": {
+                    "type": "string"
+                },
+                "rePassword": {
+                    "type": "string"
                 }
             }
         }
