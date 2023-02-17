@@ -5,18 +5,10 @@ import AdminPanel from '../admin/AdminPanel';
 import { useDispatch, useSelector } from 'react-redux';
 
 const AdminPage = props => {
-    const isLoggedIn = useSelector(state => state.isLoggedIn);
-    const dispatch = useDispatch();
 
     return (
         <div>
-            <div className="header">
-                <label>PdfShare</label>
-                {isLoggedIn && <div className="profile-buttons">
-                    {/* <Button label="Sign Out" onClick={showLoginHandler}></Button> */}
-                    {/* <IconButton src="user-avatar.png" alt="no_pic.png" /> */}
-                </div>}
-            </div>
+            <Header />
             <AdminPanel />
         </div>
     );

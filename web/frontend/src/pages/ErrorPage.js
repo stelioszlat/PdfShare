@@ -8,17 +8,18 @@ import FileContainer from '../interface/FileContainer';
 import NewFileForm from '../forms/NewFileForm';
 import ForgotPasswordForm from '../forms/ForgotPasswordForm';
 
-const LoginPage = props => {
+const ErrorPage = props => {
 
 
     return (
         <>
             <Header />
-            <SignInForm />
-            <SignUpForm />
-            <ForgotPasswordForm />
+            <div className='error-message'>
+                <h3>This url isn't probably what you want</h3>
+                <h5>Try something else to see something interesting</h5>
+            </div>
         </>
     );
 }
 
-export default LoginPage;
+export default ErrorPage;
