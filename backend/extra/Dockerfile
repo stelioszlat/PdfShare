@@ -8,6 +8,8 @@ RUN npm install
 
 COPY . .
 
+VOLUME [ "/files:/home/beckend/extra/files" ]
+
 EXPOSE 8070
 
 CMD ["npm", "start"]
