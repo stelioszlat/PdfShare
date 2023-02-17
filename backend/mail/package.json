@@ -1,0 +1,28 @@
+{
+  "name": "mail",
+  "version": "1.0.0",
+  "description": "",
+  "main": "mail.js",
+  "scripts": {
+    "start": "node mail.js",
+    "dev": "nodemon mail.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@sendgrid/mail": "^7.7.0",
+    "body-parser": "^1.20.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "mongoose": "^6.9.1",
+    "morgan": "^1.10.0",
+    "redis": "^4.6.4"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.20",
+    "swagger-ui-express": "^4.6.0"
+  }
+}
