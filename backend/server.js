@@ -7,17 +7,17 @@ const os = require('os');
 
 const metaRoutes = require('./core/routes/meta-routes');
 const loggingRoutes = require('./core/routes/logging-routes');
-const errorRoutes = require('./core/routes/error-routes');
+const errorRoutes = require('./routes/error-routes');
 const searchRoutes = require('./core/routes/search-routes');
 const authRoutes = require('./auth/routes/auth-routes');
 const userRoutes = require('./auth/routes/user-routes');
-const { extract, uploader } = require('./extra/extract');
+const { extract, uploader } = require('./util/extract');
 
 const connectDb = require('./core/util/db-util');
 const cache = require('./core/util/redis-util');
 const apiLogger = require('./core/util/log-util');
 const { getInfo } = require('./core/util/elastic-util');
-const { log } = require('./core/controllers/logging-controller');
+const { log } = require('./controllers/logging-controller');
 // const swaggerConfig = require('./swagger.json');
 
 dotenv.config();
@@ -29,6 +29,13 @@ app.use(json());
 app.use(apiLogger);
 app.use(cors());
 
+app.use((req, res, next) => {
+    res.setHeader('Access-Control-Allow-Origin', "*");
+    res.setHeader('Access-Control-Allow-Methods', "GET, POST, OPTIONS, PUT, PATCH, DELETE");
+    res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
+    res.setHeader('Access-Control-Allow-Credentials', true);
+    next();
+});
 app.use(log);
 app.use('/api/metadata', metaRoutes);
 app.use('/api/logging', loggingRoutes);
