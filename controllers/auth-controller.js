@@ -39,7 +39,6 @@ exports.login = async (req, res, next) => {
         }
 
         const token = util.signToken(userFound);
-        await util.setToCache(username + '_token', token);
     
         res.status(200).json({
             access_token: token,
@@ -156,7 +155,6 @@ exports.register = async (req, res, next) => {
         }
 
         const token = util.signToken(user);
-        await util.setToCache(username + '_token', token);
         
         res.status(200).json({ access_token: token, userId: result._id });
 

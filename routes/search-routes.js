@@ -1,6 +1,5 @@
 const { Router } = require('express');
 
-const cache = require('../util/redis-util');
 const Metadata = require('../models/metadata');
 
 const router = Router();

@@ -2,7 +2,6 @@
 const mongoose = require('mongoose');
 const Metadata = require('../models/metadata');
 const User = require('../models/user');
-const cache = require('../util/redis-util');
 
 exports.addMetadata = async (req, res, next) => {
 
@@ -24,8 +23,6 @@ exports.addMetadata = async (req, res, next) => {
     try {
         const file = await addedMeta.save();
 
-        // await cache.set(file._id, file);
-
         return res.status(200).json(file);
     }
     catch(err){
@@ -39,7 +36,6 @@ exports.getMetadata = async (req, res, next) => {
         page,
         limit
     } = req.query;
-    // search cache first
     
     try {
         const files = await Metadata.find({}, { keywords: 0, __v: 0}).limit(+limit).skip((+page - 1) * +limit);

@@ -14,10 +14,9 @@ const userRoutes = require('./routes/user-routes');
 const { extract, uploader } = require('./util/extract-util');
 
 const connectDb = require('./util/db-util');
-const cache = require('./util/redis-util');
 const apiLogger = require('./util/log-util');
 const { log } = require('./controllers/logging-controller');
-// const swaggerConfig = require('./swagger.json');
+const swaggerConfig = require('./swagger.json');
 
 dotenv.config();
 const host = process.env.HOST;
@@ -42,19 +41,15 @@ app.use('/api/search', searchRoutes);
 app.use('/api/extract', uploader.single('file'), extract);
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
-// app.use('/api-docs', swagger.serve, swagger.setup(swaggerConfig));
+app.use('/api-docs', swagger.serve, swagger.setup(swaggerConfig));
 app.use(errorRoutes);
 
-cache.connect().then(() => {
-    if (process.env.ENVIRONMENT === "testing") {
-        connectDb(process.env.MONGO_TEST, {});
-    } else {
-        connectDb(process.env.MONGO, {});
-    }
-    app.listen(port, host, () => {
-        console.log(`Running server on ${host}:${port}`);
-    });
+if (process.env.ENVIRONMENT === "testing") {
+    connectDb(process.env.MONGO_TEST, {});
+} else {
+    connectDb(process.env.MONGO, {});
+}
+app.listen(port, host, () => {
+    console.log(`Running server on ${host}:${port}`);
     console.log('Host: ' + os.hostname());
-}).catch(err => {
-    console.log(err);
 });

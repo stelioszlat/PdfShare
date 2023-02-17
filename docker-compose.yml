@@ -9,15 +9,6 @@ services:
       - './data:/var/local/data'
     networks:
       - backend
-  redis:
-    image: redis:latest
-    container_name: cache
-    ports:
-      - '6379:6379'
-    volumes:
-      - /data/cache:/data
-    networks:
-      - backend
   pdfshare:
     image: node:alpine
     container_name: server
