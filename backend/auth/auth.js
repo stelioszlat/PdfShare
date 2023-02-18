@@ -15,7 +15,6 @@ const host = process.env.HOST;
 const port = process.env.PORT;
 
 util.connectDb(process.env.MONGO, {});
-util.connectCache();
 
 const app = express();
 app.use(util.apiLogger);

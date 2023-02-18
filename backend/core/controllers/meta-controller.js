@@ -2,7 +2,6 @@
 const mongoose = require('mongoose');
 const Metadata = require('../models/metadata');
 const User = require('../models/user');
-const cache = require('../util/redis-util');
 
 exports.addMetadata = async (req, res, next) => {
 

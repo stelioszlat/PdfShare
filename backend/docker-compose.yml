@@ -9,15 +9,6 @@ services:
       - './data:/var/local/data'
     networks:
       - backend
-  redis:
-    image: redis:latest
-    container_name: cache-1
-    ports:
-      - '6379:6379'
-    volumes:
-      - /data/cache:/data
-    networks:
-      - backend
   nginx_load_balancer:
     image: nginx:latest
     container_name: http-1

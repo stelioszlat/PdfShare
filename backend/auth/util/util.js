@@ -1,5 +1,4 @@
 const { connect } = require('mongoose');
-const { createClient } = require('redis');
 const morgan = require('morgan');
 const dotenv = require('dotenv');
 const jwt = require('jsonwebtoken');
@@ -7,12 +6,7 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/user-model');
 
 dotenv.config();
-const host = process.env.REDIS_HOST;
 const secret = process.env.SECRET;
-
-const client = createClient({
-    url: host
-});
 
 exports.connectDb = (uri, options) => {
     connect(uri, {   
@@ -24,30 +18,6 @@ exports.connectDb = (uri, options) => {
     }).catch(err => {
         console.log({error: err});
     });
-}
-
-exports.connectCache = async () => {
-    await client.connect().then(() => { 
-        console.log("Connected to cache on " + host) 
-    }).catch(err => {
-        console.log(err);
-    });
-}
-
-exports.getFromCache = async (key) => {
-    return await client.get(key).then(data => { return JSON.parse(data)});
-}
-
-exports.setToCache = async (key, value) => {
-    return await client.set(key, JSON.stringify(value));
-}
-
-exports.deleteFromCache = async (key) => {
-    return await client.del(key);
-}
-
-exports.getManyFromCache = async (pattern) => {
-    return await client.keys(pattern);
 }
 
 exports.apiLogger = morgan(function (tokens, req, res) {

@@ -1,6 +1,5 @@
 const { Router } = require('express');
 
-const cache = require('../util/redis-util');
 const Metadata = require('../models/metadata');
 
 const router = Router();
@@ -16,12 +15,6 @@ router.post('', async (req, res, next) => {
     }
 
     try {
-
-        const cachedFile = await cache.get(JSON.stringify(file));
-
-        if (cachedFile) {
-            return res.status(200).json(JSON.parse(...cachedFile));
-        }
 
         if (req.body.result) {
             res.status(200).json({ result });
