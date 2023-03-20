@@ -10,4 +10,4 @@ COPY . .
 
 EXPOSE 8060
 
-CMD ["npm", "start"]
+ENTRYPOINT ["npm", "start"]

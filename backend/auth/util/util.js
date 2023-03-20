@@ -3,9 +3,7 @@ const { createClient } = require('redis');
 const morgan = require('morgan');
 const dotenv = require('dotenv');
 const jwt = require('jsonwebtoken');
-
 const User = require('../models/user-model');
-
 dotenv.config();
 const host = process.env.REDIS_HOST;
 const secret = process.env.SECRET;
@@ -132,6 +130,12 @@ exports.authenticate = async (req, res, next) => {
             return res.status(401).json({ message: 'Not authenticated.' });
         }
 
+        const user = await util.getFromCache(decodedToken);
+
+        if (!user) {
+            return res.status(401).json({ message: 'User session has been expired' });
+        }
+
         if (decodedToken.isAdmin) {
             req.isAdmin = true;
         }
@@ -169,4 +173,23 @@ exports.isSelf = async (req, res, next) => {
     next();
 }
 
+exports.isSelfOrAdmin = async (req, res, next) => {
+    const userId = req.param.userId;
 
+    if (userId) {
+        try {
+            const user = await User.findById(userId);
+
+            if (!(user.username === req.username)) {
+                return res.status(403).json({ message: "You are not authorized to access this resource (self)" });
+            }
+        } catch (err) {
+            return next(err);
+        }
+    }
+
+    if (!req.isAdmin) {
+        return res.status(403).json({ message: "You are not authorized to access this resource" });
+    }
+    next();
+}

@@ -18,9 +18,13 @@ exports.login = async (req, res, next) => {
 
     try {
 
-        const userFound = await User.findOne({
-            username: username,
-        });
+        let userFound = await util.getFromCache(username);
+
+        if (!userFound) {
+            userFound = await User.findOne({
+                username: username,
+            });
+        }
 
         if (!userFound) {
             return res.status(404).json({ message: 'Could not find user.' });
@@ -35,11 +39,12 @@ exports.login = async (req, res, next) => {
             lastLogin: new Date()
         })
         if (!result) {
-            res.status(409).json({ message: 'Could not update login info'});
+            return res.status(409).json({ message: 'Could not update login info'});
         }
 
         const token = util.signToken(userFound);
         await util.setToCache(username + '_token', token);
+        await util.setToCache(username, userFound);
     
         res.status(200).json({
             access_token: token,
@@ -51,6 +56,32 @@ exports.login = async (req, res, next) => {
         return next(err);
     }
 };
+
+exports.logout = async (req, res, next) => {
+    const { username } = req.body;
+
+    if (!username) {
+        return res.status(400).json({ message: 'You need to enter a username' });
+    }
+
+    try {
+        const userFound = await User.findOne({
+            username: username
+        });
+
+        if (!userFound) {
+            return res.status(404).json({ message: 'Could not find user.' });
+        }
+
+        await util.deleteFromCache(userFound._id);
+        await util.deleteFromCache(username);
+
+        res.status(200).json({ message: 'User is logged out.' });
+        
+    } catch (err) {
+        return next(err);
+    }
+}
 
 exports.reset = async (req, res, next) => {
     const { email, oldPassword, newPassword } = req.body; 
@@ -157,6 +188,7 @@ exports.register = async (req, res, next) => {
 
         const token = util.signToken(user);
         await util.setToCache(username + '_token', token);
+        await util.setToCache(username, user);
         
         res.status(200).json({ access_token: token, userId: result._id });
 
@@ -178,6 +210,12 @@ exports.userExists = async (req, res, next) => {
     }
 
     try {
+
+        const cachedUser = await util.getFromCache(username);
+
+        if (cachedUser) {
+            return res.status(409).json({ message: 'User already exists. (cached)' });
+        }
 
         const user = await User.find({
             username: username,

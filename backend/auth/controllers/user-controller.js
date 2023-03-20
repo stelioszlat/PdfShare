@@ -83,7 +83,8 @@ exports.createUser = async (req, res, next) => {
             return res.status(409).json({ message: 'Could not create user.'});
         }
 
-        await util.setToCache(username, result);
+        await util.setToCache(user._id, user);
+        await util.setToCache(username, user);
         
         res.status(200).json({ user });
 
@@ -96,11 +97,20 @@ exports.getUserById = async (req, res, next) => {
     const userId = req.params.uid;
 
     try {
-        const user = await User.findById(userId);
+        let user = await util.getFromCache(userId);
+
+        if (user) {
+            return res.status(200).json({user});
+        }
+
+        user = await User.findById(userId);
 
         if (!user) {
             res.status(404).json({ message: 'User does not exist' });
         }
+
+        await util.setToCache(user._id, user);
+        await util.setToCache(user.username, user); 
 
         res.status(200).json({user});
     
@@ -122,6 +132,11 @@ exports.updateUserById = async (req, res, next) => {
             res.status(404).json({ message: 'User does not exist' });
         }
 
+        await util.deleteFromCache(user._id);
+        await util.deleteFromCache(user.username);
+        await util.setToCache(user._id, user);
+        await util.setToCache(user.username, user);
+
         res.status(200).json({ user });
     
     } catch (err) {
@@ -139,6 +154,9 @@ exports.deleteUserById = async (req, res, next) => {
         if (!user) {
             return res.status(404).json({ message: 'User does not exist' });
         }
+
+        await util.deleteFromCache(user._id);
+        await util.deleteFromCache(user.username);
 
         res.status(200).json({ user });
     
