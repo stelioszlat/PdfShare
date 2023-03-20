@@ -16,9 +16,9 @@ const apiLogger = require('./util/log-util');
 const { getInfo } = require('./util/elastic-util');
 const { log } = require('./controllers/logging-controller');
 const swaggerConfig = require('./swagger.json');
+const { connection, connectQueue } = require('./util/queue-util');
 
 dotenv.config();
-const host = process.env.HOST;
 const port = process.env.PORT;
 
 const app = express();
@@ -33,17 +33,11 @@ app.use('/api/search', searchRoutes);
 app.use('/api-docs', swagger.serve, swagger.setup(swaggerConfig));
 app.use(errorRoutes);
 
-cache.connect().then(() => {
-    if (process.env.ENVIRONMENT === "testing") {
-        connectDb(process.env.MONGO_TEST, {});
-    } else {
-        connectDb(process.env.MONGO, {});
-    }
-    app.listen(port, host, () => {
-        console.log(`Running server on ${host}:${port}`);
-    });
-    getInfo();
-    console.log('Host: ' + os.hostname());
-}).catch(err => {
-    console.log(err);
+connectQueue();
+
+connectDb(process.env.MONGO, {});
+
+app.listen(port, () => {
+    console.log(`Running server on port ${port}`);
 });
+

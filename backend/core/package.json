@@ -22,6 +22,7 @@
   },
   "homepage": "https://github.com/stelioszlat/PdfShare#readme",
   "dependencies": {
+    "amqplib": "^0.10.3",
     "body-parser": "^1.19.0",
     "cors": "^2.8.5",
     "dotenv": "^16.0.1",

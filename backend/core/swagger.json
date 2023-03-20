@@ -51,6 +51,12 @@
                 "parameters": [
                     {
                         "in": "query",
+                        "name": "query",
+                        "type": "string",
+                        "required": true
+                    },
+                    {
+                        "in": "query",
                         "name": "file",
                         "type": "string",
                         "required": false
