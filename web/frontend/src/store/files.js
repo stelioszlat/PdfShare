@@ -1,21 +1,26 @@
-const { createSlice, configureStore } = require("@reduxjs/toolkit");
+const { createSlice } = require("@reduxjs/toolkit");
 
-const filesSlice = createSlice({
+const fileSlice = createSlice({
     name: 'files',
     initialState: {
         searchFocus: false,
-        showFiles: false,
         file: null,
-        editFile: false
+        editFile: false,
+        searchResults: []
     },
     reducers: {
-
+        searchFocus(state) {
+            state.searchFocus = true;
+        },
+        searchResults(state, action) {
+            state.searchResults = action.payload.searchResults;
+        }
     }
 });
 
-const store = configureStore({
-    reducer: { files: filesSlice.reducer }
-});
+// const store = configureStore({
+//     reducer: { files: fileSlice.reducer }
+// });
 
-export const filesActions = filesSlice.actions;
-export default store;
+export const filesActions = fileSlice.actions;
+export default fileSlice.reducer;
