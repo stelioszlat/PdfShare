@@ -1,17 +1,18 @@
-import React, { useContext, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import React, { useState } from 'react';
+import { useDispatch } from 'react-redux';
 
-import './SignUpForm.css';
+import styles from './forms.module.css';
 
 import Form from '../components/Form';
 import Button from '../components/Button';
 import Error from '../error/Error';
+import { authActions } from '../store/auth';
+import { useNavigate } from 'react-router-dom';
 
 
 const SignUpForm = props => {
     const dispatch = useDispatch();
-    const isLoggedIn = useSelector(state => state.isLoggedIn);
-    const showSignUp = useSelector(state => state.showSignUp);
+    const navigate = useNavigate();
 
     const [error, setError] = useState(null);
 
@@ -90,35 +91,33 @@ const SignUpForm = props => {
                 }
 
                 localStorage.setItem('token', data.access_token);
-                dispatch({ type: 'login' });
+                dispatch(authActions.login(data.access_token));
+                navigate('/home');
             });
         }).catch(err => {
             console.log(err);
             setError(err);
             setIsValid(false);
             setValidationMessage('Connection error');
-            dispatch({ type: 'login '});
         });
     }
 
     return (
         <>
-            {showSignUp && !isLoggedIn &&
-                <Form className="signup-form" title="Join the group">
-                    <label>Email</label>
-                    <input type="text" name="email" value={enteredEmail} onChange={emailChangeHandler} /><br/>
-                    <label>Username</label>
-                    <input type="text" name="username" value={enteredUsername} onChange={usernameChangeHandler} /><br/>
-                    <label>Password</label>
-                    <input type="password" name="password" value={enteredPassword} onChange={passwordChangeHandler} /><br/>
-                    <label>Confirm</label>
-                    <input type="password" name="confirm" value={enteredConfirmPassword} onChange={confirmPasswordChangeHandler} /><br/>
-                    <Button label="Register" onClick={submitHandler}/>
-                    {error ? <Error message={error.message} /> :
-                        !isValid ? <p className="validation-message">{validationMessage}</p> : <p></p>
-                    }
-                </Form>
-            }
+            <Form className={styles['signup-form']} title="Join the group">
+                <label>Email</label>
+                <input type="text" name="email" value={enteredEmail} onChange={emailChangeHandler} /><br/>
+                <label>Username</label>
+                <input type="text" name="username" value={enteredUsername} onChange={usernameChangeHandler} /><br/>
+                <label>Password</label>
+                <input type="password" name="password" value={enteredPassword} onChange={passwordChangeHandler} /><br/>
+                <label>Confirm</label>
+                <input type="password" name="confirm" value={enteredConfirmPassword} onChange={confirmPasswordChangeHandler} /><br/>
+                <Button label="Register" onClick={submitHandler}/>
+                {error ? <Error message={error.message} /> :
+                    !isValid ? <p className={styles['validation-message']}>{validationMessage}</p> : <p></p>
+                }
+            </Form>
         </>
     );
 }

@@ -1,25 +1,21 @@
 import React from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 
-import './AddButton.css';
+import styles from './components.module.css';
 
 const AddButton = props => {
-    const isLoggedIn = useSelector(state => state.isLoggedIn);
-    const showNewFileForm = useSelector(state => state.showNewFileForm);
-    const dispatch = useDispatch();
+    const navigate = useNavigate();
 
     const onClickHandler = event => {
         event.preventDefault();
-        dispatch({ type: 'showNewFileForm' });
+        navigate('/new-file');
     }
 
     return (
         <>
-            {isLoggedIn && !showNewFileForm &&
-                <button className="add-button" onClick={onClickHandler}>
-                    +   
-                </button>
-            }
+            <button className={styles['add-button']} onClick={onClickHandler}>
+                +   
+            </button>
         </>
     );
 }

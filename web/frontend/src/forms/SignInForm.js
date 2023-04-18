@@ -1,18 +1,17 @@
 import React, { useState } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import { useDispatch } from 'react-redux';
 
-import './SignInForm.css';
+import styles from './forms.module.css';
 
 import Form from '../components/Form';
 import Button from '../components/Button';
-import TextButton from '../components/TextButton';
 import Error from '../error/Error';
-import { formActions } from '../store/forms'; 
+import { authActions } from '../store/auth';
+import { useNavigate } from 'react-router-dom';
 
 const SignInForm = props => {
     const dispatch = useDispatch();
-    const isLoggedIn = useSelector(state => state.isLoggedIn);
-    const showLogin = useSelector(state => state.showLogin);
+    const navigate = useNavigate();
 
     const [error, setError] = useState(null);
 
@@ -32,7 +31,7 @@ const SignInForm = props => {
     }
 
     const forgotPasswordHandler = event => {
-        dispatch(formActions.showForgotPasswordForm());
+        navigate('/forgot-password');
     }
 
     const submitHandler = event => {
@@ -74,10 +73,12 @@ const SignInForm = props => {
 
                 localStorage.setItem('token', data.access_token);
                 localStorage.setItem('userId', data.userId);
+                dispatch(authActions.login({ token: data.access_token, userId: data.userId, isAdmin: data.isAdmin }));
+
                 if (data.isAdmin) {
-                    dispatch(pageActions.showAdminPage());
+                    dispatch(navigate('/admin'));
                 } else {
-                    dispatch(formActions.showLoginForm());
+                    dispatch(navigate('/home'));
                 }
             });
         }).catch(err => {
@@ -85,27 +86,24 @@ const SignInForm = props => {
             setError(err);
             setIsValid(false);
             setValidationMessage('Connection error');
-            dispatch({ type: 'showSignUp '});
         });
     }
 
     return (
         <>
-            {showLogin && !isLoggedIn &&
-                <Form className="signin-form" title="Sign In" onSubmit={submitHandler}>
-                    
-                    <label>Username</label>
-                    <input type="text" name="username" value={enteredUsername} onChange={usernameChangeHandler}/><br/>
-                    <label>Password</label>
-                    <input type="password" name="password" value={enteredPassword} onChange={passwordChangeHandler}/><br/>
-                    <button className="forgot-button" onClick={forgotPasswordHandler}>Forgot your password? Click here</button>
-                    <Button label="Sign In" onClick={submitHandler}/>   
-                    
-                    {error ? <Error message={error.message} /> :
-                        !isValid ? <p className="validation-message">{validationMessage}</p> : <p></p>
-                    }
-                </Form>
-            }
+            <Form className={styles['signin-form']} title="Sign In" onSubmit={submitHandler}>
+                
+                <label>Username</label>
+                <input type="text" name="username" value={enteredUsername} onChange={usernameChangeHandler}/><br/>
+                <label>Password</label>
+                <input type="password" name="password" value={enteredPassword} onChange={passwordChangeHandler}/><br/>
+                <button className={styles['forgot-button']} onClick={forgotPasswordHandler}>Forgot your password? Click here</button>
+                <Button label="Sign In" onClick={submitHandler}/>   
+                
+                {error ? <Error message={error.message} /> :
+                    !isValid ? <p className={styles['validation-message']}>{validationMessage}</p> : <p></p>
+                }
+            </Form>
         </>
     );
 }

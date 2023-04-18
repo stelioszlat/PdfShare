@@ -1,16 +1,16 @@
 import React, { useState } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import { useDispatch } from 'react-redux';
 
-import './ForgotPasswordForm.css';
+import styles from './forms.module.css';
 
 import Button from '../components/Button';
 import Form from '../components/Form';
 import Error from '../error/Error';
+import { useNavigate } from 'react-router-dom';
 
 const ForgotPasswordForm = props => {
     const dispatch = useDispatch();
-    const isLoggedIn = useSelector(state => state.isLoggedIn);
-    const showForgotPasswordForm = useSelector(state => state.showForgotPasswordForm);
+    const navigate = useNavigate();
 
     const [error, setError] = useState(null);
 
@@ -34,6 +34,10 @@ const ForgotPasswordForm = props => {
     const newPasswordChangeHandler = event => {
         setValidationMessage('');
         setEnteredNewPassword(event.target.value);
+    }
+
+    const rememberedPasswordHandler = event => {
+        navigate('/login');
     }
 
     const submitHandler = event => {
@@ -93,21 +97,20 @@ const ForgotPasswordForm = props => {
 
     return (
         <>
-            {!isLoggedIn && showForgotPasswordForm &&
-                <Form className="forgot-password-form" title="Change Password" onSubmit={submitHandler}>
-                    <label>Email</label>
-                    <input type="text" name="email" onChange={emailChangeHandler}/><br/>
-                    <label>Old Password</label>
-                    <input type="password" name="newPassword" onChange={oldPasswordChangeHandler}/><br/>
-                    <label>New Password</label>
-                    <input type="password" name="confirmNewPassword" onChange={newPasswordChangeHandler}/><br/>
-                    <Button label="Change" onClick={submitHandler}/> 
+            <Form className={styles['forgot-password-form']} title="Change Password" onSubmit={submitHandler}>
+                <label>Email</label>
+                <input type="text" name="email" onChange={emailChangeHandler}/><br/>
+                <label>Old Password</label>
+                <input type="password" name="newPassword" onChange={oldPasswordChangeHandler}/><br/>
+                <label>New Password</label>
+                <input type="password" name="confirmNewPassword" onChange={newPasswordChangeHandler}/><br/>
+                <button className={styles['forgot-button']} onClick={rememberedPasswordHandler}>Remembered it already? Click here</button>
+                <Button label="Change" onClick={submitHandler}/> 
 
-                    {error ? <Error message={error.message} /> :
-                        !isValid ? <p className="validation-message">{validationMessage}</p> : <p></p>
-                    }
-                </Form>
-            }
+                {error ? <Error message={error.message} /> :
+                    !isValid ? <p className={styles['validation-message']}>{validationMessage}</p> : <p></p>
+                }
+            </Form>  
         </>
     );
 }
