@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 
-import './UserEntryPanel.css';
+import styles from './admin.module.css';
 
 import Button from '../components/Button';
 import Error from '../error/Error';
@@ -130,7 +130,7 @@ const UserEntryPanel = props => {
     })
 
     return (
-        <div className='new-user'>
+        <div className={styles['new-user']}>
             <div>
                 <label>Admin</label>
                 <input name="admin" type="checkbox" onChange={isAdminChangeHandler}/>
@@ -154,7 +154,7 @@ const UserEntryPanel = props => {
             {!props.editMode && <Button label="Create" onClick={createUserHandler}/>}
             {props.editMode && <Button label="Edit" onClick={editUserHandler}/>}
             {error ? <Error message={error.message} /> :
-                    !isValid ? <p className="validation-message">{validationMessage}</p> : <p></p>
+                    !isValid ? <p className={styles['validation-message']}>{validationMessage}</p> : <p></p>
             }
         </div>
     );

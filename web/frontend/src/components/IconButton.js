@@ -1,6 +1,6 @@
 import React from 'react';
 
-import './IconButton.css';
+import styles from './components.module.css';
 
 
 const IconButton = props => {
@@ -11,7 +11,7 @@ const IconButton = props => {
     }
 
     return (
-        <div className="icon-button">
+        <div className={styles['icon-button']}>
             <button onClick={onClickHandler}><img src={props.src} alt={props.alt} /></button>
         </div>
     );
