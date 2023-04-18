@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: core
+spec:
+  replicas: 1
+  selector:
+    matchExpressions:
+      - key: app
+        operator: In
+        values: 
+          - core
+  template:
+    metadata:
+      labels:
+        app: core
+    spec:
+      containers:
+      - name: core
+        image: stelioszlat/core:1.0.0
+        env:
+        - name: PORT
+          value: "8080"
+        - name: SECRET
+          value: ""
+        - name: MONGO
+          value: ""
+        - name: QUEUE_HOST
+          value: "amqp://10.98.241.97:5672"

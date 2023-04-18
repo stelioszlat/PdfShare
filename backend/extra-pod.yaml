@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: extra
+  labels:
+    app: extra
+spec:
+  containers:
+    - image: stelioszlat/extra:1.0.0
+      env:
+      - name: HOST
+        value: "localhost"
+      - name: PORT
+        value: "8070"
+      - name: SECRET
+        value: ""
+      - name: BACKEND
+        value: "localhost:8080"
+      - name: QUEUE_HOST
+        value: "amqp://10.98.241.97:5672"
+      name: extra

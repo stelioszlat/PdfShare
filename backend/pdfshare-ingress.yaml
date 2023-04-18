@@ -1,0 +1,37 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: pdfshare-ingress
+spec:
+  rules:
+    - host: pdfshare.io
+      http:
+        paths:
+        - path: /api/metadata
+          pathType: Prefix
+          backend:
+            service:
+              name: core
+              port:
+                number: 8080
+        - path: /api/search
+          pathType: Prefix
+          backend:
+            service:
+              name: core
+              port:
+                number: 8080
+        - path: /api/extra
+          pathType: Prefix
+          backend:
+            service:
+              name: extra
+              port:
+                number: 8070
+        - path: /api/auth
+          pathType: Prefix
+          backend:
+            service:
+              name: auth
+              port:
+                number: 8060

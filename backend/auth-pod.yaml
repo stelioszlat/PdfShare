@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: auth
+  labels:
+    app: auth
+spec:
+  containers:
+    - image: stelioszlat/auth:1.0.0
+      env:
+      - name: PORT
+        value: "8060"
+      - name: SECRET
+        value: ""
+      - name: MONGO
+        value: ""
+      name: auth

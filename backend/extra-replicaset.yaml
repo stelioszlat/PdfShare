@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: extra
+spec:
+  replicas: 1
+  selector:
+    matchExpressions:
+      - key: app
+        operator: In
+        values: 
+          - extra
+  template:
+    metadata:
+      labels:
+        app: extra
+    spec:
+      containers:
+      - name: extra
+        image: stelioszlat/extra:1.0.0
+        env:
+        - name: HOST
+          value: "localhost"
+        - name: PORT
+          value: "8070"
+        - name: SECRET
+          value: ""
+        - name: BACKEND
+          value: "localhost:8080"
+        - name: QUEUE_HOST
+          value: "amqp://10.98.241.97:5672"
