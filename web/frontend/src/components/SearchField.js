@@ -1,21 +1,36 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
-import './SearchField.css';
 
-import Button from './Button';
+import styles from './components.module.css';
+
 import SearchResult from './SearchResult';
+import { filesActions } from '../store/files';
+import { useNavigate } from 'react-router-dom';
 
 const SearchField = props => {
+    const navigate = useNavigate();
     const dispatch = useDispatch();
     const [query, setQuery] = useState('');
-    const [searchResults, setSearchResults] = useState([]); 
+    const [searchResults, setSearchResults] = useState([]);
+    const [showResults, setShowResults] = useState(false);
+
+    useEffect(() => {
+        const debounce = setTimeout(() => {
+            if (query !== '') {
+                searchHandler();
+            }
+        }, 800);
+    
+        return () => clearTimeout(debounce);
+      }, [query]);
 
     const searchFocusHandler = event => {
-        dispatch({ type: 'searchFocus' });
+        setShowResults(false);
+        dispatch(filesActions.searchFocus());
     }
 
     const searchHandler = event => {
-        fetch('http://127.0.0.1:8080/api/search?file=' + query, {
+        fetch('http://127.0.0.1:8080/api/search?query=' + query, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json"
@@ -23,7 +38,8 @@ const SearchField = props => {
         }).then(result => {
             result.json().then(response => {
                 console.log(response);
-                setSearchResults(response);
+                setSearchResults(response.files);
+                setShowResults(true);
             })
         }).catch(err => {
             console.log(err);
@@ -31,22 +47,34 @@ const SearchField = props => {
     }
 
     const changeInputHandler = event => {
+        setShowResults(false);
         setQuery(event.target.value);
+    }
+
+    const resultClickHandler = (event, id) => {
+        navigate('/file/' + id);
+    }
+
+    const resultsClickHandler = (event) => {
+        dispatch(filesActions.searchResults({ searchResults: searchResults}));
+        navigate('/results?query=' + query);
     }
 
     return (
         <>
-            <div className="search-wrapper"> 
-                <div className="search-field">
-                    <input value={query} type="text" placeholder="Search anything..." onChange={changeInputHandler} onFocus={searchFocusHandler}/>
+            <div className={styles['search-wrapper']}> 
+                <div className={styles['search-field']}>
+                    <div><input value={query} type="" placeholder="Search anything..." onChange={changeInputHandler} onFocus={searchFocusHandler}/></div>
+                    {showResults && <div className={styles['file-results']}>
+                        {searchResults.slice(0, 5).map(result => {
+                            return <SearchResult key={result._id} file={result} clickFileCallBack={(event) => resultClickHandler(event, result._id)} clickUploaderCallback={resultClickHandler} />
+                        })}
+                        <div className={styles['show-all-wrapper']}>
+                            <button onClick={resultsClickHandler}>Show All</button>
+                        </div>
+                    </div>}
                 </div>
-                <Button label="Go" onClick={searchHandler}/>
             </div>
-            {/* <div className="file-results">
-                {searchResults.map(result => {
-                    return <SearchResult key={result._id} file={result.fileName}/>
-                })}
-            </div> */}
         </>
     );
 };
