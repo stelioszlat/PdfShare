@@ -21,7 +21,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: ./backend/core
-          file: ./beckend/core/Dockerfile
+          file: ./backend/core/Dockerfile
           push: true
           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/core:latest
   build-auth:
@@ -40,7 +40,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: ./backend/auth
-          file: ./beckend/auth/Dockerfile
+          file: ./backend/auth/Dockerfile
           push: true
           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/auth:latest
   build-extra:
@@ -59,7 +59,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: ./backend/extra
-          file: ./beckend/extra/Dockerfile
+          file: ./backend/extra/Dockerfile
           push: true
           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/extra:latest
   build-web:
@@ -78,7 +78,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: ./backend/web
-          file: ./beckend/web/Dockerfile
+          file: ./backend/web/Dockerfile
           push: true
           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/web:latest
 
