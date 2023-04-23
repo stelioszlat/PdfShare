@@ -3,17 +3,24 @@ const express = require('express');
 const cors = require('cors');
 const multer = require('multer');
 const fs = require('fs');
-const rest = require('axios').default;
 const pdf = require('pdf-parse');
 const miner = require('text-miner');
 const dotenv = require('dotenv');
+const prometheus = require('prom-client');
 
 const utils = require('./utils');
 const { format } = require('url');
+const { send, connectQueue } = require('./queue-util');
 
 dotenv.config();
 const host = process.env.HOST;
 const port = process.env.PORT;
+
+const metricRegistry = new prometheus.Registry();
+metricRegistry.setDefaultLabels({
+    app: 'pdfshare-extracting-service'
+});
+prometheus.collectDefaultMetrics({ metricRegistry });
 
 const uploader = multer({ storage: multer.diskStorage({ 
     destination: (req, file, cb) => {
@@ -28,7 +35,8 @@ const uploader = multer({ storage: multer.diskStorage({
 
 const extractMiddleware = async (req, res, next) => {
     const file = req.savedFileName;
-    const token = req.get('Authorization').split(' ')[0];
+    console.log(file);
+    // const token = req.get('Authorization').split(' ')[0];
 
     if (!file) {
         return res.status(400).json({ message: 'File not found' });
@@ -63,40 +71,45 @@ const extractMiddleware = async (req, res, next) => {
 
         const terms = new miner.DocumentTermMatrix(content);
 
-        // console.log(terms.nTerms);
-
         const keywords = terms.findFreqTerms(100);
 
-        // send metadata and then store metadata to the cache by metadata id
-        const result = await rest('http://127.0.0.1:8080/api/metadata/file/new', {
-            fileName: file.originalname,
-            uploader: 'stelioszlat',
-            keywords: keywords
-        }, {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + token
-        });
+        send({fileName: file, uploader: 'stelioszlat', keywords: keywords });
 
-        console.log('Result: ' + result);
-
-        if (!result) {
-            return res.status(400).json({ message: 'Metadata uploading failed.' });
-        }
+        console.log('Sent file: ' + file);
         
-        res.status(200).json({ message: 'File sent.', fileName: file.originalname, keywords: keywords });
+        return res.status(200).json({ message: 'File sent.', fileName: file, keywords: keywords });
     } catch (err) {
-        return res.status(err.response.status).json({ message: err.response.data.message });
+        console.error(err);
+        return res.status(409).json({ message: 'Bad Request' });
     }
 };
+
+const downloadFile = (req, res, next) => {
+    const file = req.query.file;
+
+    const filePath = `./files/${file}`;
+    res.download(filePath, (err) => {
+        if (err) {
+            console.log(err);
+        }
+    });
+}
 
 const extract = express();
 extract.use(cors());
 extract.use(bodyParser.json());
 extract.use(utils.apiLogger);
-extract.post('/api/extract/file', uploader.single('file'), extractMiddleware);
+extract.post('/api/extra/extract/file', uploader.single('file'), extractMiddleware);
+extract.get('/api/extra/download', downloadFile);
+extract.get('/metrics', async (req, res, next) => {
+    const metrics = await metricRegistry.metrics();
+    return res.send(metrics);
+});
 extract.use((err, req, res, next) => {
     res.status(500).json({ message: err.message});
 });
+
+connectQueue();
 
 extract.listen(port, host, () => {
     console.log(`Running extracting service on ${host}:${port}`);

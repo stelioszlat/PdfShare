@@ -1,15 +1,13 @@
 import React, { useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
 
-import './NewFileForm.css';
+import styles from './forms.module.css';
 
 import Form from '../components/Form';
 import Button from '../components/Button';
+import { useNavigate } from 'react-router-dom';
 
 const NewFileForm = props => {
-	const dispatch = useDispatch();
-	const isLoggedIn = useSelector(state => state.isLoggedIn);
-	const showNewFileForm = useSelector(state => state.showNewFileForm);
+	const navigate = useNavigate();
 	const [fileName, setFileName] = useState('');
 	const [message, setMessage] = useState('');
 
@@ -28,37 +26,36 @@ const NewFileForm = props => {
 				setFileName(response.fileName);
 				setMessage(response.message);
 			})
-			// dispatch({ type: 'main' })
+			navigate('/home');
 		}).catch(err => {
 			console.log(err);
-			setMessage('An error occurred while uploading the file');
+			setMessage('Could not upload the file');
 		});
 	}
 
 	const selectFileHandler = event => {
+		console.log(event.target);
 		if (event.target.files || event.target.files.length === 1) {
 			const selectedFile = event.target.files[0];
 			setFile(selectedFile);
-			console.log(selectedFile);
+			setFileName(selectedFile.name);
 		}
 		console.log(event.target.files);
     }
 
     return (
 		<>
-			{isLoggedIn && showNewFileForm &&
-				<Form className="newfile-form" title="Create">
-            		<div className="main-selector">
-						<label htmlFor="file-upload">
-							Select File
-						</label>
-						<input id="file-upload" type="file" name="file" accept=".pdf" onClick={selectFileHandler}/>
-					</div>
-					<p>{fileName}</p>
-					<Button label="Upload File" onClick={onClickHandler} />
-					<p className="validation-message">{message}</p>
-				</Form>
-			}		
+			<Form className={styles['newfile-form']} title="Create">
+				<div className={styles['main-selector']}>
+					<label htmlFor="file-upload">
+						Select File
+						<input id="file-upload" type="file" name="file" accept=".pdf" onChange={selectFileHandler}/>
+					</label>
+				</div>
+				<div className={styles['file-preview']}>{fileName}</div>
+				<Button label="Upload File" onClick={onClickHandler} />
+				<p className={styles['validation-message']}>{message}</p>
+			</Form>	
 		</>
 	);
 }

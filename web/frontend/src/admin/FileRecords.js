@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 
-import './FileRecords.css';
+import styles from './admin.module.css';
 
 const FileRecords = props => {
     const [files, setFiles] = useState([]);
@@ -28,7 +28,7 @@ const FileRecords = props => {
     })
 
     return (
-        <div className="user-records">
+        <div className={styles['user-records']}>
             <table>
                 <thead>
                     <tr>

@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: queue
+spec:
+  replicas: 1
+  selector:
+    matchExpressions:
+      - key: app
+        operator: In
+        values: 
+          - queue
+  template:
+    metadata:
+      labels:
+        app: queue
+    spec:
+      containers:
+      - image: stelioszlat/queue:1.0.0
+        name: queue
+        ports:
+        - containerPort: 15672
+          protocol: TCP
+        - containerPort: 5671
+          protocol: TCP
+        - containerPort: 5672
+          protocol: TCP
+        - containerPort: 4369
+          protocol: TCP

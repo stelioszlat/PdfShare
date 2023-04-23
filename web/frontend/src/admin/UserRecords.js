@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import Button from '../components/Button';
 import IconButton from '../components/IconButton';
 
-import './UserRecords.css';
+import styles from './admin.module.css';
 
 const UserRecords = props => {
     const [users, setUsers] = useState([]);
@@ -72,7 +72,7 @@ const UserRecords = props => {
     })
 
     return (
-        <div className="user-records">
+        <div className={styles['user-records']}>
             <table>
                 <thead>
                     <tr>

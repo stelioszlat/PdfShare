@@ -9,30 +9,50 @@ exports.addMetadata = async (req, res, next) => {
 
     const {fileName, uploader, keywords} = req.body;
 
-    if (!fileName) {
-        return res.status(400).json({ message: 'File name is required' });
+    try {
+        const file = this.createMetadata({fileName, uploader, keywords});
+
+        if (!file) {
+            return res.status(400).json({ message: 'File name is required' });
+        }
+
+        return res.status(200).json({file});
+    } catch (err) {
+        return next(err);
+    }
+};
+
+exports.createMetadata = async (data) => {
+    if (!data.fileName) {
+        return false;
     }
 
     const addedMeta = new Metadata({
-        fileName: fileName,
-        uploader: uploader,
+        fileName: data.fileName,
+        uploader: data.uploader,
         timesQueried: 0,
         timesModified: 0,
         version: 1,
-        keywords: keywords
+        keywords: data.keywords
     });
 
     try {
         const file = await addedMeta.save();
 
-        // await cache.set(file._id, file);
+        await cache.set(file._id, file);
+        await cache.set(data.fileName, file);
 
-        return res.status(200).json(file);
+        console.log('Added new file: ' + file.fileName);
+
+        return file;
     }
     catch(err){
-        return next(err);
+        await cache.delete(file._id);
+        await cache.delete(data.fileName);
+
+        return false;
     }
-};
+}
 
 exports.getMetadata = async (req, res, next) => {
     // need to add pagination
@@ -82,13 +102,13 @@ exports.getMetadataByUserId = async (req, res, next) => {
 
         const files = await Metadata.find({
             uploader: user.username
-        });
+        }, { keywords: 0 });
 
         if (!files) {
             return res.status(404).json({ message: 'Could not find files' });
         }
 
-        res.status(200).json({ files });
+        return res.status(200).json({ files });
 
     }
     catch (err) {
@@ -101,13 +121,22 @@ exports.getMetadataById = async (req, res, next) => {
     const fileId = req.params.fid;
 
     try {
-        const file = await Metadata.findById(fileId);
+        let file = await cache.get(fileId);
+
+        if (file) {
+            return res.status(200).json({file});
+        }
+        
+        file = await Metadata.findById(fileId);
 
         if (!file) {
             return res.status(404).json({ message: 'Could not find file.' });
         }
 
-        res.status(200).json(file);
+        await cache.set(file._id, file);
+        await cache.set(file.fileName, file);
+
+        res.status(200).json({file});
     }
     catch(err){
         return next(err);
@@ -126,6 +155,9 @@ exports.deleteMetadataById = async (req, res, next) => {
         }
 
         const result = await Metadata.findByIdAndDelete(fileId);
+
+        await cache.delete(fileId);
+        await cahce.delete(file.fileName); 
 
         res.status(200).json(result);
 

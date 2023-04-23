@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 
-import './TextButton.css';
+import styles from './components.module.css';
 
 const TextButton = props => {
 
@@ -14,7 +14,7 @@ const TextButton = props => {
     };
 
     return (
-        <button className="text-button" onClick={onClickHandler}>{props.label}</button>
+        <button className={styles['text-button']} onClick={onClickHandler}>{props.label}</button>
     );
 }
 

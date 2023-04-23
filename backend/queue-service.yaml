@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: queue
+spec:
+  type: ClusterIP
+  ports:
+  - name: srver
+    port: 5672
+    targetPort: 5672
+  - name: ui
+    port: 15672
+    targetPort: 15672
+  selector:
+    app: queue

@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: auth
+spec:
+  replicas: 1
+  selector:
+    matchExpressions:
+      - key: app
+        operator: In
+        values: 
+          - auth
+  template:
+    metadata:
+      labels:
+        app: auth
+    spec:
+      containers:
+      - name: auth
+        image: stelioszlat/auth:1.0.0
+        env:
+        - name: PORT
+          value: "8086"
+        - name: SECRET
+          value: ""
+        - name: MONGO
+          value: ""
+        - name: REDIS_HOST
+          value: "redis://10.100.29.250:6379"

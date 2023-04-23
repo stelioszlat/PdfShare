@@ -1,28 +1,11 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
 
-import './FileContainer.css';
+import styles from './interface.module.css';
 
 import File from '../components/File';
 
-// const FILES = [
-//     {
-//         name: "{file_name}.pdf",
-//         lastUpdated: "{last update date}"
-//     },
-//     {
-//         name: "{file_name}.pdf",
-//         lastUpdated: "{last update date}"
-//     }
-// ]
-
 
 const FileContainer = props => {
-    // fetch files and list them as a grid of <File> components
-    const isLoggedIn = useSelector(state => state.isLoggedIn);
-    const showFiles = useSelector(state => state.showFiles);
-    const editFile = useSelector(state => state.editFile);
-
     const [files, setFiles] = useState([]);
 
     useEffect(() => {
@@ -67,12 +50,12 @@ const FileContainer = props => {
 
     return (
         <>
-            <div className="file-container">
-                {isLoggedIn && showFiles && !editFile &&
+            <div className={styles['file-container']}>
+                {
                     files.map(file => {
                         return <File key={file._id} name={file.fileName} lastUpdated={file.updatedAt} onDelete={() => { deleteFile(file._id) }}/>
                     })
-                }       
+                }
             </div>
         </>
     );

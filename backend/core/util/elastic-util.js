@@ -21,7 +21,17 @@ exports.getInfo = async () => {
     });
 }
 
-exports.createIndex = async (req, res, next) => {
+exports.createIndex = async (index) => {
+    try {
+        client.indices.create({ index: index }, (err, resp, status) => {
+            console.log(resp);
+        })
+    } catch (err) {
+        console.log(err);
+    }
+}
+
+exports.index = async (req, res, next) => {
     const {fileName, author, uploader, keywords} = req.query;
 
     if (!fileName) {
@@ -29,24 +39,10 @@ exports.createIndex = async (req, res, next) => {
     }
 
     try {
-        client.indices.create(
-            {
-                index: fileName,
-            },
-            function (err, resp, status) {
-                if (err) {
-                    return next(console.log(err));
-                }
-                else {
-                    console.log("Created ", resp);
-                }
-            }
-        );
-
         client.index(
             {
-                index: fileName,
-                body: {
+                index: 'metadata',
+                document: {
                     author: author,
                     uploader: uploader,
                     keywords: keywords
@@ -67,22 +63,25 @@ exports.createIndex = async (req, res, next) => {
     }
 }
 
-exports.deleteIndex = async (req, res, next) => {
+exports.delete = async (req, res, next) => {
     const { fileName } = req.body;
 
-    client.indices.delete(
-        {
-            index: fileName,
-        },
-        function (err, resp, status) {
+    try {
+        client.delete({
+            index: 'metadata',
+            document: {
+                fileName: fileName
+            }
+        }, (err, resp, status) => {
             if (err) {
                 return next(err);
             } else {
-                console.log("Deleted", resp);
+                console.log(resp);
             }
-            next();
-        }
-    );
+        });
+    } catch (err) {
+        return next(err);
+    }
 }
 
 exports.searchIndex = async (req, res, next) => {
@@ -91,7 +90,8 @@ exports.searchIndex = async (req, res, next) => {
 
     try {
         const result = await client.search({
-            index: fileName,
+            index: 'metadata',
+            fileName: fileName,
             author: author,
             uploader: uploader,
             keywords: keywords

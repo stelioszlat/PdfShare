@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-import './AdminPanel.css';
+import styles from './admin.module.css';
 import TextButton from '../components/TextButton';
 
 import UserRecords from './UserRecords';
@@ -48,16 +48,16 @@ const AdminPanel = (props) => {
     }
 
     return (
-        <div className="admin-panel">
-            <div className="side-menu">
+        <div className={styles['admin-panel']}>
+            <div className={styles['side-menu']}>
                 <TextButton onClick={switchPanelGeneral} label="General" />
                 <TextButton onClick={switchPanelUsers} label="Users" />
                 <TextButton onClick={switchPanelFiles} label="Files" />
                 <TextButton onClick={switchPanelTokens} label="Tokens" />
                 <TextButton onClick={switchPanelLogs} label="Logs" />
             </div>
-            <div className="main-panel">
-                {panel === 'general' && <div className='general'>
+            <div className={styles['main-panel']}>
+                {panel === 'general' && <div className={styles['general']}>
                     <h1>General</h1>
                 </div>}
                 {panel === 'users' && done && <>

@@ -1,9 +1,9 @@
 import React, { useCallback, useEffect, useState } from 'react';
 
-import './Profile.css';
+import styles from './components.module.css';
 
 const Profile = props => {
-    const [user, setUser] = useState('');
+    const [user, setUser] = useState({});
 
     useEffect(() => {
         fetchUser();
@@ -18,7 +18,7 @@ const Profile = props => {
             }
         }).then(response => {
             return response.json().then(data => {
-                setUser(data.user);
+                setUser(data);
             })
         }).catch(err => {
             console.log(err);
@@ -26,7 +26,7 @@ const Profile = props => {
     });
 
     return (
-        <div className="profile">
+        <div className={styles['profile']}>
             <h3>Profile</h3>
             <p><b>Username</b> {user.username}</p>
             <p><b>Email</b> {user.email}</p>

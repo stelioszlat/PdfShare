@@ -2,6 +2,7 @@ const jwt = require('jsonwebtoken');
 const dotenv = require('dotenv');
 
 const User = require('../models/user-model');
+const { util } = require('../util/util');
 
 dotenv.config();
 const secret = process.env.SECRET;
@@ -46,11 +47,19 @@ exports.getTokenByUserId = async (req, res, next) => {
     const userId = req.params.uid;
 
     try {
-        const user = await User.findById(userId);
+        let user = await util.getFromCache(userId);
+
+        if (user) {
+            return res.status(200).json({ token: user.apiToken });
+        }
+        
+        user = await User.findById(userId);
 
         if (!user) {
             res.status(409).json({ message: 'Could not find user' });
         }
+
+        await util.setToCache(userId, user);
 
         res.status(200).json({ token: user.apiToken });
 
@@ -63,7 +72,7 @@ exports.getTokens = async (req, res, next) => {
     let tokens = []
     try {
         const users = await User.find();
-        console.log(users );
+
         for (let user in users) {
             tokens.push({
                 username: user.username,
