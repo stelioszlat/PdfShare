@@ -3,7 +3,7 @@ run-name: ${{ github.actor }} is running PdfShare workflow
 on: 
   push:
     branches:
-      - with-web-client
+      - master
 jobs:
   build-core:
     runs-on: ubuntu-latest
