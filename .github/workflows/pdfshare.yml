@@ -13,8 +13,8 @@ jobs:
 
       - name: Build Images
         run: | 
-        docker build -t stelioszlat/core:latest ./backend/core
-        docker build -t stelioszlat/auth:latest ./backend/auth
+        docker build -t stelioszlat/core:latest ./backend/core \
+        docker build -t stelioszlat/auth:latest ./backend/auth \
         docker build -t stelioszlat/extra:latest ./backend/extra
 
       - name: Log in to Docker Hub
@@ -25,6 +25,6 @@ jobs:
 
       - name: Push Docker Images
         run: |
-          docker push stelioszlat/core:latest
-          docker push stelioszlat/auth:latest
-          docker push stelioszlat/extra:latest
+          docker push stelioszlat/core:latest \
+          docker push stelioszlat/auth:latest \ 
+          docker push stelioszlat/extra:latest \
