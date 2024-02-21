@@ -28,10 +28,3 @@ spec:
               name: extra
               port:
                 number: 8070
-        - path: /api/auth
-          pathType: Prefix
-          backend:
-            service:
-              name: auth
-              port:
-                number: 8060

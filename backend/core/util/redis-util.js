@@ -1,10 +1,16 @@
-// import config from '../config.json';
 const { createClient } = require('redis');
+const dotenv = require('dotenv');
+dotenv.config();
 
-const host = "redis://localhost:6379" // process.env.REDIS_HOST
+const host = process.env.REDIS_HOST;
 
 const client = createClient({
-    url: host
+    username: "default",
+    password: process.env.REDIS_PASSWORD,
+    socket: {
+        host: host,
+        port: process.env.REDIS_PORT
+    }
 });
 
 exports.connect = async () => {

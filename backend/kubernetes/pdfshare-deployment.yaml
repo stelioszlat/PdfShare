@@ -1,0 +1,8 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pdfshare
+  labels:
+    app: pdfshare
+spec:
+  replicas: 1

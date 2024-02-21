@@ -9,7 +9,11 @@ const host = process.env.REDIS_HOST;
 const secret = process.env.SECRET;
 
 const client = createClient({
-    url: host
+    password: process.env.REDIS_PASSWORD,
+    socket: {
+        host: process.env.REDIS_HOST,
+        port: process.env.REDIS_PORT
+    }
 });
 
 exports.connectDb = (uri, options) => {
@@ -33,18 +37,30 @@ exports.connectCache = async () => {
 }
 
 exports.getFromCache = async (key) => {
+    if (!client.isOpen) {
+        return;
+    } 
     return await client.get(key).then(data => { return JSON.parse(data)});
 }
 
 exports.setToCache = async (key, value) => {
+    if (!client.isOpen) {
+        return;
+    }
     return await client.set(key, JSON.stringify(value));
 }
 
 exports.deleteFromCache = async (key) => {
+    if (!client.isOpen) {
+        return;
+    }
     return await client.del(key);
 }
 
 exports.getManyFromCache = async (pattern) => {
+    if (!client.isOpen) {
+        return;
+    }
     return await client.keys(pattern);
 }
 

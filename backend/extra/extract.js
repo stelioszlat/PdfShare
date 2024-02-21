@@ -2,6 +2,7 @@ const bodyParser = require('body-parser');
 const express = require('express');
 const cors = require('cors');
 const multer = require('multer');
+const multers3 = require('multer-s3');
 const fs = require('fs');
 const pdf = require('pdf-parse');
 const miner = require('text-miner');
@@ -11,10 +12,29 @@ const prometheus = require('prom-client');
 const utils = require('./utils');
 const { format } = require('url');
 const { send, connectQueue } = require('./queue-util');
+const path = require('path');
+
+const aws = require('@aws-sdk/client-s3');
 
 dotenv.config();
 const host = process.env.HOST;
 const port = process.env.PORT;
+
+const s3 = new aws.S3Client({
+    credentials: {
+        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+    },
+    region: process.env.AWS_REGION,
+});
+
+const s3Storage = multers3({
+    s3: s3,
+    bucket: process.env.S3_BUCKET,
+    key: (req, file, cb) => {
+        cb(null, file.originalname);
+    }
+});
 
 const metricRegistry = new prometheus.Registry();
 metricRegistry.setDefaultLabels({
@@ -22,16 +42,25 @@ metricRegistry.setDefaultLabels({
 });
 prometheus.collectDefaultMetrics({ metricRegistry });
 
-const uploader = multer({ storage: multer.diskStorage({ 
-    destination: (req, file, cb) => {
-        cb(null, 'files');
-    },
-    filename: (req, file, cb) => {
-        const savedFileName = file.originalname;
-        req.savedFileName = savedFileName;
-        cb(null, savedFileName);
+
+const sanitizeFile = (file, cb) => {
+    const fileExtensions = ['.pdf'];
+
+    const isAllowed = fileExtensions.includes(path.extname(file.originalname.toLowerCase()));
+
+    if (isAllowed) {
+        return cb(null, true);
+    } else {
+        return cb("File type not allowed!");
     }
-})});
+}
+
+const uploader = multer({ 
+    storage: s3Storage,
+    fileFilter: (req, file, cb) => {
+        sanitizeFile(file, cb);
+    }
+});
 
 const extractMiddleware = async (req, res, next) => {
     const file = req.savedFileName;
@@ -84,15 +113,27 @@ const extractMiddleware = async (req, res, next) => {
     }
 };
 
-const downloadFile = (req, res, next) => {
+const uploadFile = (req, res, next) => {
+    return res.status(200).json({ message: req.file.originalname + ' uploaded' });
+}
+
+const downloadFile = async (req, res, next) => {
     const file = req.query.file;
 
-    const filePath = `./files/${file}`;
-    res.download(filePath, (err) => {
-        if (err) {
-            console.log(err);
-        }
+    const command = new aws.GetObjectCommand({
+        Bucket: process.env.S3_BUCKET,
+        Key: file
     });
+    
+    try {
+        const response = await s3.send(command);
+
+        res.attachment(file);
+        response.Body.pipe(res);
+
+    } catch (err) {
+        return next(err);
+    }
 }
 
 const extract = express();
@@ -100,6 +141,7 @@ extract.use(cors());
 extract.use(bodyParser.json());
 extract.use(utils.apiLogger);
 extract.post('/api/extra/extract/file', uploader.single('file'), extractMiddleware);
+extract.post('/api/extra/upload', uploader.single('file'), uploadFile);
 extract.get('/api/extra/download', downloadFile);
 extract.get('/metrics', async (req, res, next) => {
     const metrics = await metricRegistry.metrics();

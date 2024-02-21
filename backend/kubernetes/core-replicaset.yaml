@@ -26,4 +26,7 @@ spec:
         - name: MONGO
           value: ""
         - name: QUEUE_HOST
-          value: "amqp://10.98.241.97:5672"
+          valueFrom:
+            configMapKeyRef: 
+              name: pdfshare-config-map
+              value: QUEUE_HOST
