@@ -11,8 +11,12 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v2
 
-      - name: Build Images
+      - name: Build Core Image
         run: docker build -t stelioszlat/core:latest ./backend/core
+      - name: Build Auth Image
+        run: docker build -t stelioszlat/auth:latest ./backend/auth
+      - name: Build Extra Image
+        run: docker build -t stelioszlat/extra:latest ./backend/extra
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v1
@@ -20,5 +24,11 @@ jobs:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_PASSWORD }}
 
-      - name: Push Docker Images
+      - name: Push Core Image
         run: docker push stelioszlat/core:latest
+      - name: Push Auth Image
+        run: docker push stelioszlat/auth:latest
+      - name: Push Extra Image
+        run: docker push stelioszlat/extra:latest
+
+    
