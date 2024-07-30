@@ -42,8 +42,9 @@ const UserRecords = props => {
             }
         }).then(response => {
             response.json().then(data => {
-                const filteredUsers = users.filter(user => {return user._id !== userId});
-                setUsers([...filteredUsers]);
+                const userIndex = users.findindex(user => { return user._id === userId});
+                users.splice(userIndex, 1);
+                setUsers([...users]);
             })
         }).catch(err => {
             console.log(err);

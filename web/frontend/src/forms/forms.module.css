@@ -28,7 +28,7 @@
 }
 
 .forgot-password-form .forgot-button:hover {
-    color: #272727;
+    color: #1E1E1E;
 }
 
 .forgot-password-form  button {
@@ -64,7 +64,7 @@
     width: 120px;
     height: 30px;
     color: white;
-    background-color: #272727;
+    background-color: #1E1E1E;
     border-radius: 5px;
     border: none;
     font-size: large;
@@ -121,7 +121,7 @@
 }
 
 .signin-form .forgot-button:hover {
-    color: #272727;
+    color: #1E1E1E;
 }
 
 .signin-form .forgot-button:active {

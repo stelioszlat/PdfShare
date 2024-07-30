@@ -1,0 +1,11 @@
+FROM public.ecr.aws/lambda/node:latest
+
+WORKDIR /home/backend/auth
+
+COPY package*.json ./
+
+RUN npm install
+
+COPY . .
+
+CMD ["npm", "start"]

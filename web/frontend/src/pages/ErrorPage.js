@@ -1,5 +1,7 @@
 import React from 'react';
 
+import Header from '../interface/Header';
+
 const ErrorPage = props => {
 
 

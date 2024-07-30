@@ -36,7 +36,7 @@ exports.login = async (req, res, next) => {
         }
 
         const result = await User.findByIdAndUpdate(userFound._id, {
-            lastLogin: new Date()
+            lastLogin: new Date().toISOString();
         })
         if (!result) {
             return res.status(409).json({ message: 'Could not update login info'});

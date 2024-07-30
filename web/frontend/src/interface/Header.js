@@ -26,7 +26,7 @@ const Header = props => {
         localStorage.removeItem('token');
         localStorage.removeItem('userId');
         dispatch(authActions.logout());
-        navigate('/home');
+        navigate('/');
     }
 
     const showProfileHandler = event => {
@@ -36,7 +36,7 @@ const Header = props => {
     return (
         <div className={styles['header']}>
             <label>PdfShare</label>
-            {!isAdmin && <SearchField />}
+            {isLoggedIn && !isAdmin && <SearchField />}
             {!isLoggedIn && <div className={styles['default-buttons']}>
                 <Button label="Sign In" onClick={showLoginHandler}></Button>
                 <Button label="Sign Up" onClick={showSignUpHandler}></Button>

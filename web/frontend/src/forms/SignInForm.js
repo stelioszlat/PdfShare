@@ -76,9 +76,9 @@ const SignInForm = props => {
                 dispatch(authActions.login({ token: data.access_token, userId: data.userId, isAdmin: data.isAdmin }));
 
                 if (data.isAdmin) {
-                    dispatch(navigate('/admin'));
+                    navigate('/admin');
                 } else {
-                    dispatch(navigate('/home'));
+                    navigate('/home');
                 }
             });
         }).catch(err => {
@@ -97,7 +97,7 @@ const SignInForm = props => {
                 <input type="text" name="username" value={enteredUsername} onChange={usernameChangeHandler}/><br/>
                 <label>Password</label>
                 <input type="password" name="password" value={enteredPassword} onChange={passwordChangeHandler}/><br/>
-                <button className={styles['forgot-button']} onClick={forgotPasswordHandler}>Forgot your password? Click here</button>
+                <button className={styles['forgot-button']} onClick={forgotPasswordHandler}>Forgot your password?</button>
                 <Button label="Sign In" onClick={submitHandler}/>   
                 
                 {error ? <Error message={error.message} /> :

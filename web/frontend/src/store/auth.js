@@ -14,6 +14,7 @@ const authSlice = createSlice({
         login(state, action) {
             state.isLoggedIn = true;
             state.isAdmin = action.payload.isAdmin;
+            state.userId = action.payload.userId;
             state.token = action.payload.token;
         },
         logout(state) {

@@ -1,7 +1,15 @@
 .file-container {
     display: grid;
-    grid-template-columns: repeat(3, 2fr);
+    grid-template-columns: repeat(5, 1fr);
     margin: 50px;
+}
+
+@media (max-width: 600px) {
+    .file-container {
+        display: grid;
+        grid-template-columns: repeat(2, 2fr);
+        margin: 50px;
+    }
 }
 
 .file-view {
@@ -14,7 +22,7 @@
     justify-content: space-between;
 
     padding: 5px;
-    background-color: #272727;
+    background-color: #1E1E1E;
 
     font-family: 'Inter';
     font-style: normal;
@@ -37,7 +45,7 @@
 
 .default-buttons button:hover {
     background-color: white;
-    color: #272727;
+    color: #1E1E1E;
 }
 
 .profile-buttons {
@@ -48,7 +56,7 @@
 
 .profile-buttons .main-button:hover {
     background-color: white;
-    color: #272727;
+    color: #1E1E1E;
 }
 
 .header label {

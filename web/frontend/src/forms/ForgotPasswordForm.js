@@ -73,9 +73,7 @@ const ForgotPasswordForm = props => {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                email: enteredEmail,
-                oldPassword: enteredOldPassword,
-                newPassword: enteredNewPassword
+                email: enteredEmail
             })
         })
         .then(response => {
@@ -100,11 +98,7 @@ const ForgotPasswordForm = props => {
             <Form className={styles['forgot-password-form']} title="Change Password" onSubmit={submitHandler}>
                 <label>Email</label>
                 <input type="text" name="email" onChange={emailChangeHandler}/><br/>
-                <label>Old Password</label>
-                <input type="password" name="newPassword" onChange={oldPasswordChangeHandler}/><br/>
-                <label>New Password</label>
-                <input type="password" name="confirmNewPassword" onChange={newPasswordChangeHandler}/><br/>
-                <button className={styles['forgot-button']} onClick={rememberedPasswordHandler}>Remembered it already? Click here</button>
+                <button className={styles['forgot-button']} onClick={rememberedPasswordHandler}>Remembered it already?</button>
                 <Button label="Change" onClick={submitHandler}/> 
 
                 {error ? <Error message={error.message} /> :

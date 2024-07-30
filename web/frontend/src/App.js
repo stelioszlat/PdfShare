@@ -3,6 +3,7 @@ import { createBrowserRouter, Outlet, RouterProvider } from 'react-router-dom';
 
 import './App.css';
 
+import LandingPage from './pages/LandingPage';
 import AdminPage from './pages/AdminPage';
 import ErrorPage from './pages/ErrorPage';
 import LoginPage from './pages/LoginPage';
@@ -21,8 +22,8 @@ const ProfileRoot = props => {
 
 const router = createBrowserRouter([
   {
-    path: '/',
-    element: <MainPage />,
+    path: '',
+    element: <LandingPage />,
     errorElement: <ErrorPage />
   },
   {

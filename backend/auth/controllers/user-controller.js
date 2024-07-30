@@ -58,7 +58,7 @@ exports.createUser = async (req, res, next) => {
         });
 
         if (existingUser) {
-            res.status(409).json({ message: 'User already exists' });
+            return res.status(409).json({ message: 'User already exists' });
         }
 
         const apiToken = jwt.sign({
@@ -106,7 +106,7 @@ exports.getUserById = async (req, res, next) => {
         user = await User.findById(userId);
 
         if (!user) {
-            res.status(404).json({ message: 'User does not exist' });
+            return res.status(404).json({ message: 'User does not exist' });
         }
 
         await util.setToCache(user._id, user);
@@ -129,7 +129,7 @@ exports.updateUserById = async (req, res, next) => {
         });
 
         if (!user) {
-            res.status(404).json({ message: 'User does not exist' });
+            return res.status(404).json({ message: 'User does not exist' });
         }
 
         await util.deleteFromCache(user._id);

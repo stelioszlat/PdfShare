@@ -10,10 +10,15 @@ backend/core/node_modules
 backend/core/package-lock.json
 backend/data
 backend/extra/node_modules
+backend/extra/.env
 backend/extra/package-lock.json
+backend/extra/files
 backend/mail/node_modules
 backend/mail/.env
 backend/mail/package-lock.json
+backend/notifications/node_modules
+backend/notifications/.env
+backend/notifications/package-lock.json
 web/node_modules
 web/package-lock.json
 
@@ -32,5 +37,5 @@ web/frontend/yarn-debug.log*
 web/frontend/yarn-error.log*
 web/frontend/yarn.lock
 web/frontend/package-lock.json
-
-backend/extra/files
+backend/auth/.env
+backend/core/.env

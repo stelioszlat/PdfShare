@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { useDispatch } from 'react-redux';
+import React, { useCallback, useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 
 import styles from './components.module.css';
 
@@ -51,9 +51,9 @@ const SearchField = props => {
         setQuery(event.target.value);
     }
 
-    const resultClickHandler = (event, id) => {
+    const resultClickHandler = useCallback((event, id) => {
         navigate('/file/' + id);
-    }
+    });
 
     const resultsClickHandler = (event) => {
         dispatch(filesActions.searchResults({ searchResults: searchResults}));
@@ -65,12 +65,12 @@ const SearchField = props => {
             <div className={styles['search-wrapper']}> 
                 <div className={styles['search-field']}>
                     <div><input value={query} type="" placeholder="Search anything..." onChange={changeInputHandler} onFocus={searchFocusHandler}/></div>
-                    {showResults && <div className={styles['file-results']}>
+                    {showResults && searchResults.length != 0 && <div className={styles['file-results']}>
                         {searchResults.slice(0, 5).map(result => {
-                            return <SearchResult key={result._id} file={result} clickFileCallBack={(event) => resultClickHandler(event, result._id)} clickUploaderCallback={resultClickHandler} />
+                            return <SearchResult key={result._id} file={result} clickFileCallback={(event) => resultClickHandler(event, result._id)} clickUploaderCallback={resultClickHandler} />
                         })}
                         <div className={styles['show-all-wrapper']}>
-                            <button onClick={resultsClickHandler}>Show All</button>
+                            {searchResults.length > 5 && <button onClick={resultsClickHandler}>Show All</button>}
                         </div>
                     </div>}
                 </div>

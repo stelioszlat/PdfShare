@@ -34,12 +34,12 @@ const File = props => {
     }
 
     return (
-        <div className="file-wrapper" >
+        <div className={styles['file-wrapper']} >
             <div className={styles['file-header']}>
                 <IconButton name="pdf" src="iwwa_file-pdf.png" onClick={downloadFileHandler}/>
             </div>
             <div className={styles['file-minified']}>
-                <IconButton name="pic" src="no_pic.png" />
+                {/* <IconButton name="pic" src="no_pic.png" /> */}
             </div>
             <div className={styles['file-footer']}>
                 <div className={styles['file-details']}>
@@ -48,7 +48,7 @@ const File = props => {
                 </div>
                 <div className={styles['file-control']}>
                     <IconButton name="edit" src="ci_edit.png" onClick={editHandler} />
-                    <IconButton name="delete" src="icomoon-free_bin.png" onClick={deleteFileHandler} />
+                    {/* <IconButton name="delete" src="icomoon-free_bin.png" onClick={deleteFileHandler} /> */}
                 </div>
             </div>
         </div>

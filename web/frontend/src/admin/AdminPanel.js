@@ -49,7 +49,7 @@ const AdminPanel = (props) => {
 
     return (
         <div className={styles['admin-panel']}>
-            <div className={styles['side-menu']}>
+            <div className={styles['admin-menu']}>
                 <TextButton onClick={switchPanelGeneral} label="General" />
                 <TextButton onClick={switchPanelUsers} label="Users" />
                 <TextButton onClick={switchPanelFiles} label="Files" />
@@ -58,7 +58,7 @@ const AdminPanel = (props) => {
             </div>
             <div className={styles['main-panel']}>
                 {panel === 'general' && <div className={styles['general']}>
-                    <h1>General</h1>
+                    <h2>General</h2>
                 </div>}
                 {panel === 'users' && done && <>
                     <UserRecords onEdit={editUserHandler}/>
