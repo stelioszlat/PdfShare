@@ -2,7 +2,7 @@ const bodyParser = require('body-parser');
 const express = require('express');
 const cors = require('cors');
 const multer = require('multer');
-const multers3 = require('multer-s3');
+// const multers3 = require('multer-s3');
 const fs = require('fs');
 const pdf = require('pdf-parse');
 const miner = require('text-miner');
@@ -14,39 +14,40 @@ const { format } = require('url');
 const { send, connectQueue } = require('./queue-util');
 const path = require('path');
 
-const aws = require('@aws-sdk/client-s3');
+// const aws = require('@aws-sdk/clieent-s3');
 
 dotenv.config();
 const host = process.env.HOST;
 const port = process.env.PORT;
 
-const s3 = new aws.S3Client({
-    credentials: {
-        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
-    },
-    region: process.env.AWS_REGION,
-});
+// const s3 = new aws.S3Client({
+//     credentials: {
+//         accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+//         secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+//     },
+//     region: process.env.AWS_REGION,
+// });
 
-const s3Storage = multers3({
-    s3: s3,
-    bucket: process.env.S3_BUCKET,
-    key: (req, file, cb) => {
-        cb(null, file.originalname);
-    }
-});
+// const s3Storage = multers3({
+//     s3: s3,
+//     bucket: process.env.S3_BUCKET,
+//     key: (req, file, cb) => {
+//         cb(null, file.originalname);
+//     }
+// });
 
-const metricRegistry = new prometheus.Registry();
-metricRegistry.setDefaultLabels({
-    app: 'pdfshare-extracting-service'
-});
-prometheus.collectDefaultMetrics({ metricRegistry });
+// const metricRegistry = new prometheus.Registry();
+// metricRegistry.setDefaultLabels({
+//     app: 'pdfshare-extracting-service'
+// });
+// prometheus.collectDefaultMetrics({ metricRegistry });
 
 
 const sanitizeFile = (file, cb) => {
     const fileExtensions = ['.pdf'];
 
     const isAllowed = fileExtensions.includes(path.extname(file.originalname.toLowerCase()));
+    console.log("File is" + (isAllowed ? " " : "not ") + "allowed")
 
     if (isAllowed) {
         return cb(null, true);
@@ -55,16 +56,25 @@ const sanitizeFile = (file, cb) => {
     }
 }
 
-const uploader = multer({ 
-    storage: s3Storage,
+const uploader = multer({
+    storage: multer.diskStorage({
+        destination: (req, file, cb) => {
+          // Set the destination folder where files will be uploaded
+          cb(null, 'files/');
+        },
+        filename: (req, file, cb) => {
+          // Keep the original file name
+          cb(null, file.originalname);  // This will save the file with its original name
+        }
+      }),
     fileFilter: (req, file, cb) => {
         sanitizeFile(file, cb);
     }
 });
 
 const extractMiddleware = async (req, res, next) => {
-    const file = req.savedFileName;
-    console.log(file);
+    const file = req.file;
+    console.log(file)
     // const token = req.get('Authorization').split(' ')[0];
 
     if (!file) {
@@ -73,7 +83,7 @@ const extractMiddleware = async (req, res, next) => {
 
     try {
 
-        const dataBuffer = fs.readFileSync('./files/' + file);
+        const dataBuffer = fs.readFileSync('./files/' + file.originalname);
 
         if (!dataBuffer) {
             return res.status(404).json({ message: 'File does not exist.' });
@@ -140,14 +150,15 @@ const extract = express();
 extract.use(cors());
 extract.use(bodyParser.json());
 extract.use(utils.apiLogger);
-extract.post('/api/extra/extract/file', uploader.single('file'), extractMiddleware);
-extract.post('/api/extra/upload', uploader.single('file'), uploadFile);
+// extract.post('/api/extra/extract/file', uploader.single('file'), extractMiddleware);
+extract.post('/api/extra/upload', uploader.single('file'), extractMiddleware);
 extract.get('/api/extra/download', downloadFile);
 extract.get('/metrics', async (req, res, next) => {
     const metrics = await metricRegistry.metrics();
     return res.send(metrics);
 });
 extract.use((err, req, res, next) => {
+    console.error(err);
     res.status(500).json({ message: err.message});
 });
 
