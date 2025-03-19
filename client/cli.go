@@ -9,13 +9,15 @@ import (
 	"os"
 	"strings"
 
+	"mime/multipart"
+
 	"github.com/spf13/cobra"
 	"golang.org/x/term"
 )
 
 func Search(query string) (result string) {
 	var endpoint strings.Builder
-	fmt.Fprintf(&endpoint, "%s/search?query=%s", "http://localhost:8080/api", query)
+	fmt.Fprintf(&endpoint, "%s/search?query=%s", "http://localhost:8087/api", query)
 	fmt.Printf("Calling endpoint %s\n", endpoint.String())
 	response, err := http.Get(endpoint.String())
 	if err != nil {
@@ -36,7 +38,7 @@ func Search(query string) (result string) {
 
 func GetFiles() (result string) {
 	var endpoint strings.Builder
-	fmt.Fprintf(&endpoint, "%s/metadata/files", "http://localhost:8080/api")
+	fmt.Fprintf(&endpoint, "%s/metadata/files", "http://localhost:8087/api")
 	fmt.Printf("Calling endpoint %s\n", endpoint.String())
 	response, err := http.Get(endpoint.String())
 	if err != nil {
@@ -52,6 +54,7 @@ func GetFiles() (result string) {
 	}
 
 	fmt.Println(string(body))
+
 	return
 }
 
@@ -84,12 +87,10 @@ func Login() (result string) {
 
 	fmt.Printf("Usr %s with psw %s", body.username, body.password)
 
-	fmt.Fprintf(&endpoint, "%s/login", "http://localhost:8080/api")
+	fmt.Fprintf(&endpoint, "%s/login", "http://localhost:8086/api")
 	fmt.Printf("Calling endpoint %s\n", endpoint.String())
-	jsonBody, jsonErr := json.Marshal(body)
-	_ = jsonErr
 
-	response, err := http.Post(endpoint.String(), "application/json", bytes.NewBuffer(jsonBody))
+	response, err := http.Post(endpoint.String(), "application/json", getJsonBody(body))
 	if err != nil {
 		fmt.Printf("Files fetch failed: %v\n", err)
 		return
@@ -99,8 +100,51 @@ func Login() (result string) {
 	return
 }
 
+func Upload(fileName string, local bool) {
+	var endpoint strings.Builder
+	type UploadBody struct {
+		file bytes.Buffer
+	}
+	body := UploadBody{}
+
+	fmt.Fprintf(&endpoint, "%s/extra/upload", "http://localhost:8070/api")
+	fmt.Printf("Calling endpoint %s\n", endpoint.String())
+
+	osFile, err := os.Open(fileName)
+	if err != nil {
+		fmt.Println(err.Error())
+		os.Exit(1)
+	}
+
+	multipartWriter := multipart.NewWriter(&body.file)
+	filePart, _ := multipartWriter.CreateFormFile("file", fileName)
+	_, err = io.Copy(filePart, osFile)
+	if err != nil {
+		fmt.Println("Error copying file content:", err)
+		return
+	}
+	multipartWriter.Close()
+
+	request, _ := http.NewRequest("POST", endpoint.String(), &body.file)
+	request.Header.Set("Content-Type", multipartWriter.FormDataContentType())
+	client := &http.Client{}
+	client.Do(request)
+
+	// fmt.Println(request)
+	osFile.Close()
+	return
+}
+
+func getJsonBody(body any) *bytes.Buffer {
+	jsonBody, jsonErr := json.Marshal(body)
+	_ = jsonErr
+
+	return bytes.NewBuffer(jsonBody)
+}
+
 func main() {
 	var apiEndpoint string
+	var localFlag bool
 
 	var srchCmd = &cobra.Command{
 		Use:     "pdfcli search [query]",
@@ -124,6 +168,14 @@ func main() {
 		Aliases: []string{"login"},
 		Run: func(cmd *cobra.Command, args []string) {
 			Login()
+		},
+	}
+
+	var uploadCmd = &cobra.Command{
+		Use:     "pdfcli upload <filename> [--local]",
+		Aliases: []string{"upload", "up", "send"},
+		Run: func(cmd *cobra.Command, args []string) {
+			Upload(args[0], localFlag)
 		},
 	}
 
@@ -154,6 +206,8 @@ func main() {
 	rootCmd.AddCommand(srchCmd)
 	rootCmd.AddCommand(filesCmd)
 	rootCmd.AddCommand(loginCmd)
+	uploadCmd.Flags().BoolVar(&localFlag, "local", false, "Enable local mode")
+	rootCmd.AddCommand(uploadCmd)
 
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)
