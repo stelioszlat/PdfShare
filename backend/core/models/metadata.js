@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 
 const metadataSchema = mongoose.Schema({
   fileName: { type: String, required: true },
+  downloadLink: { type: String },
   author: { type: String },
   uploader: { type: String },
   timesQueried: { type: Number },

@@ -2,7 +2,7 @@
 const mongoose = require('mongoose');
 const Metadata = require('../models/metadata');
 const User = require('../models/user');
-const cache = require('../util/redis-util');
+// const cache = require('../util/redis-util');
 const index = require('../util/elastic-util');
 
 exports.addMetadata = async (req, res, next) => {

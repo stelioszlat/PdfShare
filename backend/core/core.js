@@ -10,7 +10,7 @@ const errorRoutes = require('./routes/error-routes');
 const searchRoutes = require('./routes/search-routes');
 
 const connectDb = require('./util/db-util');
-const cache = require('./util/redis-util');
+// const cache = require('./util/redis-util');
 const apiLogger = require('./util/log-util');
 // const { getInfo } = require('./util/elastic-util';
 const { log } = require('./controllers/logging-controller');
@@ -32,11 +32,11 @@ app.use('/api/search', searchRoutes);
 app.use('/api-docs', swagger.serve, swagger.setup(swaggerConfig));
 app.use(errorRoutes);
 
-connectQueue();
+// connectQueue();
 
 connectDb(process.env.MONGO, {});
 
-cache.connect();
+// cache.connect();
 
 app.listen(port, () => {
     console.log(`Running server on port ${port}`);
