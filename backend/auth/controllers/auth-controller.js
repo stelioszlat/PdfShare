@@ -18,33 +18,41 @@ exports.login = async (req, res, next) => {
 
     try {
 
-        let userFound = await util.getFromCache(username);
+        // let userFound = await util.getFromCache(username);
+
+        // if (!userFound) {
+        //     userFound = await User.findOne({
+        //         username: username,
+        //     });
+        // }
+        let userFound = await User.findOne({
+            username: username,
+        });
 
         if (!userFound) {
-            userFound = await User.findOne({
-                username: username,
-            });
-        }
-
-        if (!userFound) {
+            console.error("Could not find user");
             return res.status(404).json({ message: 'Could not find user.' });
         }
 
         const isCorrect = await bcrypt.compare(password, userFound.password);
         if (!isCorrect) {
+            console.error("Incorrect password");
             return res.status(409).json({ message: 'Incorrect password' });
         }
 
+        const token = await util.signToken(userFound);
+
         const result = await User.findByIdAndUpdate(userFound._id, {
-            lastLogin: new Date().toISOString();
+            apiToken: token,
+            lastLogin: new Date().toISOString()
         })
         if (!result) {
+            console.error("Could not update login info")
             return res.status(409).json({ message: 'Could not update login info'});
         }
 
-        const token = util.signToken(userFound);
-        await util.setToCache(username + '_token', token);
-        await util.setToCache(username, userFound);
+        // await util.setToCache(username + '_token', token);
+        // await util.setToCache(username, userFound);
     
         res.status(200).json({
             access_token: token,

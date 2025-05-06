@@ -146,11 +146,11 @@ exports.authenticate = async (req, res, next) => {
             return res.status(401).json({ message: 'Not authenticated.' });
         }
 
-        const user = await util.getFromCache(decodedToken);
+        // const user = await getFromCache(decodedToken);
 
-        if (!user) {
-            return res.status(401).json({ message: 'User session has been expired' });
-        }
+        // if (!user) {
+        //     return res.status(401).json({ message: 'User session has been expired' });
+        // }
 
         if (decodedToken.isAdmin) {
             req.isAdmin = true;

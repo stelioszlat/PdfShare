@@ -5,7 +5,7 @@ const { isAdmin, isSelf, isSelfOrAdmin, authenticate, userExists } = require('..
 
 const router = Router();
 
-// /api/auth/user
+// /api/user
 router.get('/all', authenticate, isAdmin, user.getUsers);
 router.post('', authenticate, isAdmin, userExists, user.createUser);
 router.get('/:uid', authenticate, isSelf, user.getUserById);
