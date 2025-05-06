@@ -6,7 +6,10 @@ toolchain go1.24.1
 
 require github.com/spf13/cobra v1.8.0
 
-require golang.org/x/term v0.30.0 // indirect
+require (
+	github.com/joho/godotenv v1.5.1 // indirect
+	golang.org/x/term v0.30.0 // indirect
+)
 
 require (
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
