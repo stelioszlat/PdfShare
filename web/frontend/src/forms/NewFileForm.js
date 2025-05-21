@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 
 import styles from './forms.module.css';
 
+import { uploadFile } from '../services/file-service';
 import Form from '../components/Form';
 import Button from '../components/Button';
 import { useNavigate } from 'react-router-dom';
@@ -17,10 +18,9 @@ const NewFileForm = props => {
 		console.log(file);
 		const formData = new FormData();
 		formData.append('file', file);
-		fetch('http://127.0.0.1:8070/api/extract/file', {
-			method: 'POST', 
-			body: formData
-		}).then(result => {
+
+		uploadFile(formData)
+		.then(result => {
 			console.log(result);
 			result.json().then(response => {
 				setFileName(response.fileName);

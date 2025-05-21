@@ -3,6 +3,7 @@ import { useDispatch } from 'react-redux';
 
 import styles from './forms.module.css';
 
+import { register } from '../services/auth-service';
 import Form from '../components/Form';
 import Button from '../components/Button';
 import Error from '../error/Error';
@@ -72,17 +73,11 @@ const SignUpForm = props => {
     }
 
     const signupHandler = event => {
-        fetch("http://127.0.0.1:8086/api/auth/register", {
-            method: "POST",
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                email: enteredEmail,
-                username: enteredUsername,
-                password: enteredPassword,
-                rePassword: enteredConfirmPassword
-            })
+        register({
+            email: enteredEmail,
+            username: enteredUsername,
+            password: enteredPassword,
+            rePassword: enteredConfirmPassword
         })
         .then(response => {
             return response.json().then(data => {
@@ -90,7 +85,7 @@ const SignUpForm = props => {
                     setError(data);
                 }
 
-                localStorage.setItem('token', data.access_token);
+                localStorage.setItem('access_token', data.access_token);
                 dispatch(authActions.login(data.access_token));
                 navigate('/home');
             });

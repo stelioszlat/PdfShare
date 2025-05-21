@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 
 import styles from './forms.module.css';
+
+import { reset } from '../services/auth-service';
 
 import Button from '../components/Button';
 import Form from '../components/Form';
@@ -26,15 +28,15 @@ const ForgotPasswordForm = props => {
         setEnteredEmail(event.target.value);
     }
 
-    const oldPasswordChangeHandler = event => {
-        setValidationMessage('');
-        setEnteredOldPassword(event.target.value);
-    }
+    // const oldPasswordChangeHandler = event => {
+    //     setValidationMessage('');
+    //     setEnteredOldPassword(event.target.value);
+    // }
 
-    const newPasswordChangeHandler = event => {
-        setValidationMessage('');
-        setEnteredNewPassword(event.target.value);
-    }
+    // const newPasswordChangeHandler = event => {
+    //     setValidationMessage('');
+    //     setEnteredNewPassword(event.target.value);
+    // }
 
     const rememberedPasswordHandler = event => {
         navigate('/login');
@@ -66,16 +68,8 @@ const ForgotPasswordForm = props => {
         forgotPasswordHandler();
     }
 
-    const forgotPasswordHandler = event => {
-        fetch("http://127.0.0.1:8086/api/auth/reset", {
-            method: "POST",
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                email: enteredEmail
-            })
-        })
+    const forgotPasswordHandler = useCallback(async (event) => {
+        await reset({ email: enteredEmail })
         .then(response => {
             return response.json().then(data => {
                 if (!response.ok) {
@@ -91,7 +85,7 @@ const ForgotPasswordForm = props => {
             setValidationMessage('Connection error');
             dispatch({ type: 'showForgotPasswordForm '});
         });
-    }
+    });
 
     return (
         <>

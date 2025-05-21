@@ -3,11 +3,13 @@ import { useDispatch } from 'react-redux';
 
 import styles from './forms.module.css';
 
+import { login } from '../services/auth-service';
 import Form from '../components/Form';
-import Button from '../components/Button';
+import Button from '@mui/material/Button';
 import Error from '../error/Error';
 import { authActions } from '../store/auth';
 import { useNavigate } from 'react-router-dom';
+import { Input, InputLabel } from '@mui/material';
 
 const SignInForm = props => {
     const dispatch = useDispatch();
@@ -55,15 +57,9 @@ const SignInForm = props => {
     }
 
     const loginHandler = event => {
-        fetch("http://127.0.0.1:8086/api/auth/login", {
-            method: "POST",
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                username: enteredUsername,
-                password: enteredPassword
-            })
+        login({
+            username: enteredUsername,
+            password: enteredPassword
         })
         .then(response => {
             return response.json().then(data => {
@@ -71,7 +67,7 @@ const SignInForm = props => {
                     return setError(data);
                 }
 
-                localStorage.setItem('token', data.access_token);
+                localStorage.setItem('access_token', data.access_token);
                 localStorage.setItem('userId', data.userId);
                 dispatch(authActions.login({ token: data.access_token, userId: data.userId, isAdmin: data.isAdmin }));
 
@@ -93,12 +89,12 @@ const SignInForm = props => {
         <>
             <Form className={styles['signin-form']} title="Sign In" onSubmit={submitHandler}>
                 
-                <label>Username</label>
-                <input type="text" name="username" value={enteredUsername} onChange={usernameChangeHandler}/><br/>
-                <label>Password</label>
-                <input type="password" name="password" value={enteredPassword} onChange={passwordChangeHandler}/><br/>
-                <button className={styles['forgot-button']} onClick={forgotPasswordHandler}>Forgot your password?</button>
-                <Button label="Sign In" onClick={submitHandler}/>   
+                <InputLabel>Username</InputLabel>
+                <Input type="text" required name="username" value={enteredUsername} onChange={usernameChangeHandler}/><br/>
+                <InputLabel>Password</InputLabel>
+                <Input type="password" required name="password" value={enteredPassword} onChange={passwordChangeHandler}/><br/>
+                <Button variant="text" className={styles['forgot-button']} onClick={forgotPasswordHandler}>Forgot your password?</Button>
+                <Button variant="contained" onClick={submitHandler}>Sign In</Button>   
                 
                 {error ? <Error message={error.message} /> :
                     !isValid ? <p className={styles['validation-message']}>{validationMessage}</p> : <p></p>

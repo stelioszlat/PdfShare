@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 
+import { getTokens } from '../services/token-service';
 
 const TokenRecords = props => {
     const [tokens, setTokens] = useState([]);
@@ -9,12 +10,8 @@ const TokenRecords = props => {
     }, []);
 
     const fetchTokens = useCallback(async () => {
-        await fetch('http://127.0.0.1:8086/api/auth/token/all', {
-            method: "GET",
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        }).then(response => {
+        await getTokens()
+        .then(response => {
             response.json().then(data => {
                 if (!data.tokens) {
                     return setTokens([]);

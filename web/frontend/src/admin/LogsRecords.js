@@ -1,5 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 
+import { getLogs } from '../services/metadata-service';
+
 const LogsRecords = props => {
     const [logs, setLogs] = useState([]);
 
@@ -8,13 +10,8 @@ const LogsRecords = props => {
     }, []);
 
     const fetchLogs = useCallback(async () => {
-        await fetch('http://127.0.0.1:8080/api/logging/logs', {
-            method: "GET",
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': localStorage.getItem('token')
-            }
-        }).then(response => {
+        await getLogs()
+        .then(response => {
             response.json().then(data => {
                 if (!data.logs) {
                     return setLogs([]);

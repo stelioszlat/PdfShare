@@ -1,9 +1,11 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import Button from '../components/Button';
-import IconButton from '../components/IconButton';
 
 import styles from './admin.module.css';
 
+import { getUsers, deleteUser, updateUser } from '../services/user-service';
+
+import Button from '../components/Button';
+import IconButton from '../components/IconButton';
 const UserRecords = props => {
     const [users, setUsers] = useState([]);
 
@@ -12,12 +14,8 @@ const UserRecords = props => {
     }, []);
 
     const fetchUsers = useCallback(async () => {
-        await fetch('http://127.0.0.1:8086/api/user/all', {
-            method: "GET",
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        }).then(response => {
+        await getUsers()
+        .then(response => {
             response.json().then(data => {
                 if (!data.users) {
                     return setUsers([]);
@@ -34,13 +32,9 @@ const UserRecords = props => {
         props.onEdit(userId);
     }
 
-    const deleteUser = useCallback(async (userId) => {
-        await fetch('http://127.0.0.1:8086/api/user/' + userId, {
-            method: "DELETE",
-            headers: {
-                'Content-Type': 'application/json',
-            }
-        }).then(response => {
+    const deleteUserHandler = useCallback(async (userId) => {
+        await deleteUser(userId)
+        .then(response => {
             response.json().then(data => {
                 const userIndex = users.findindex(user => { return user._id === userId});
                 users.splice(userIndex, 1);
@@ -52,15 +46,8 @@ const UserRecords = props => {
     })
 
     const toggleUserActivation = useCallback(async (userId, active) => {
-        await fetch('http://127.0.0.1:8086/api/user/' + userId, {
-            method: "PUT",
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                active: active
-            })
-        }).then(response => {
+        await updateUser({ active: active }, userId)
+        .then(response => {
             response.json().then(data => {
                 const activatedUser = users.find(user => {return user._id === userId});
                 activatedUser.active = active;
@@ -97,7 +84,7 @@ const UserRecords = props => {
                             {user.active && <td><Button label="Deactivate" onClick={() => toggleUserActivation(user._id, false)}/></td>}
                             {!user.active && <td><Button label="Activate" onClick={() => toggleUserActivation(user._id, true)}/></td>}
                             <td><IconButton src="ci_edit.png" onClick={() => showEditUserHandler(user._id)}/></td>
-                            <td><IconButton src="icomoon-free_bin.png" onClick={() => deleteUser(user._id)}/></td>
+                            <td><IconButton src="icomoon-free_bin.png" onClick={() => deleteUserHandler(user._id)}/></td>
                         </tr>
                     })}
                 </tbody>

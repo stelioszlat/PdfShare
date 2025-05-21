@@ -2,6 +2,8 @@ import React, { useCallback, useEffect, useState } from 'react';
 
 import styles from './admin.module.css';
 
+import { createUser, updateUser } from '../services/user-service';
+
 import Button from '../components/Button';
 import Error from '../error/Error';
 
@@ -71,7 +73,7 @@ const UserEntryPanel = props => {
         setEnteredUsername('');
         setEnteredPassword('');
         setEnteredConfirmPassword('');
-        createUser();
+        postUser();
     }
 
     const editUserHandler = event => {
@@ -83,20 +85,15 @@ const UserEntryPanel = props => {
         editUser();
     }
 
-    const createUser = useCallback(async () => {
-        await fetch('http://127.0.0.1:8086/api/user', {
-            method: "POST",
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                username: enteredUsername,
-                email: enteredEmail,
-                isAdmin: enteredIsAdmin,
-                password: enteredPassword,
-                rePassword: enteredConfirmPassword
-            })
-        }).then(response => {
+    const postUser = useCallback(async () => {
+        await createUser({
+            username: enteredUsername,
+            email: enteredEmail,
+            isAdmin: enteredIsAdmin,
+            password: enteredPassword,
+            rePassword: enteredConfirmPassword
+        })
+       .then(response => {
             if (!response.ok) {
                 return setError(response.json().then(data => {return data.message} ));
             }
@@ -108,17 +105,12 @@ const UserEntryPanel = props => {
     });
 
     const editUser = useCallback(async (userId) => {
-        await fetch('http://127.0.0.1:8086/api/user/' + userId, {
-            method: "PUT",
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                username: user.username,
-                email: user.email,
-                isAdmin: user.isAdmin,
-            })
-        }).then(response => {
+        await updateUser({
+            username: user.username,
+            email: user.email,
+            isAdmin: user.isAdmin,
+        }, userId)
+        .then(response => {
             if (!response.ok) {
                 return setError(response.json().then(data => {return data.message} ));
             }

@@ -2,6 +2,8 @@ import React, { useCallback, useEffect, useState } from 'react';
 
 import styles from './admin.module.css';
 
+import { getFiles } from '../services/metadata-service';
+
 const FileRecords = props => {
     const [files, setFiles] = useState([]);
 
@@ -10,12 +12,8 @@ const FileRecords = props => {
     }, []);
 
     const fetchFiles = useCallback(async () => {
-        await fetch('http://127.0.0.1:8080/api/metadata/files', {
-            method: "GET",
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        }).then(response => {
+        await getFiles()
+        .then(response => {
             response.json().then(data => {
                 if (!data.files) {
                     return setFiles([]);

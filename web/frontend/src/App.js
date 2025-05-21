@@ -2,6 +2,7 @@ import React from 'react';
 import { createBrowserRouter, Outlet, RouterProvider } from 'react-router-dom';
 
 import './App.css';
+import { defaultTheme } from './theme';
 
 import LandingPage from './pages/LandingPage';
 import AdminPage from './pages/AdminPage';
@@ -15,6 +16,7 @@ import SignupPage from './pages/SignupPage';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import NewFilePage from './pages/NewFilePage';
 import ResultsPage from './pages/ResultsPage';
+import { ThemeProvider } from '@mui/material';
 
 const ProfileRoot = props => {
   return (<><Outlet /></>)
@@ -84,16 +86,18 @@ const router = createBrowserRouter([
 function App() {
 
   return (
-    <RouterProvider router={router}>
-      <AdminPage />
-      <LoginPage />
-      <SignupPage />
-      <ForgotPasswordPage />
-      <MainPage />
-      <FilePage />
-      <ProfilePage />
-      <ResultsPage />
-    </RouterProvider>
+    <ThemeProvider theme={defaultTheme}>
+      <RouterProvider router={router}>
+        <AdminPage />
+        <LoginPage />
+        <SignupPage />
+        <ForgotPasswordPage />
+        <MainPage />
+        <FilePage />
+        <ProfilePage />
+        <ResultsPage />
+      </RouterProvider>
+    </ThemeProvider>
   );
 }
 

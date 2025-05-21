@@ -2,6 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import styles from './components.module.css';
+import { Chip } from '@mui/material';
 
 const AddButton = props => {
     const navigate = useNavigate();
@@ -13,9 +14,7 @@ const AddButton = props => {
 
     return (
         <>
-            <button className={styles['add-button']} onClick={onClickHandler}>
-                +   
-            </button>
+            <Chip variant="outlined" clickable size="large" className={styles['add-button']} onClick={onClickHandler}/>
         </>
     );
 }

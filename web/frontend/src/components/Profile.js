@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 
 import styles from './components.module.css';
+import { getUser } from '../services/user-service';
 
 const Profile = props => {
     const [user, setUser] = useState({});
@@ -11,12 +12,8 @@ const Profile = props => {
 
     const fetchUser = useCallback(async () => {
         const userId = localStorage.getItem('userId');
-        await fetch('http://127.0.0.1:8086/api/user/' + userId, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json"
-            }
-        }).then(response => {
+        getUser(userId)
+        .then(response => {
             return response.json().then(data => {
                 setUser(data);
             })

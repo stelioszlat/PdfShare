@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 
 import styles from './interface.module.css';
 
+import { getFiles } from '../services/metadata-service';
 import File from '../components/File';
 
 
@@ -13,14 +14,8 @@ const FileContainer = props => {
     }, []);
     
     const fetchFiles = useCallback(async () => {
-        const userId = localStorage.getItem('userId');
-        await fetch("http://127.0.0.1:8080/api/metadata/files/user/" + userId, {
-            method: "GET",
-            header: {
-                'Content-Type': 'application/json',
-                'Authorization': 'Bearer ' + localStorage.getItem('token')
-            }
-        }).then(response => {
+        await getFiles()
+        .then(response => {
             return response.json().then(data => {
                 if (!data.files) {
                     setFiles([]);
@@ -33,7 +28,8 @@ const FileContainer = props => {
     });
 
     const deleteFile = useCallback(async (fileId) => {
-        await fetch('http://127.0.0.1:8080/api/metadata/file/' + fileId, {
+        await deleteFile(fileId)
+        await fetch('http://127.0.0.1:8087/api/metadata/file/' + fileId, {
             method: "DELETE",
             headers: {
                 "Content-Type": 'appication/json'
@@ -53,7 +49,7 @@ const FileContainer = props => {
             <div className={styles['file-container']}>
                 {
                     files.map(file => {
-                        return <File key={file._id} name={file.fileName} lastUpdated={file.updatedAt} onDelete={() => { deleteFile(file._id) }}/>
+                        return <File key={file._id} name={file.fileName} uploader={file.uploader} lastUpdated={file.updatedAt} onDelete={() => { deleteFile(file._id) }}/>
                     })
                 }
             </div>

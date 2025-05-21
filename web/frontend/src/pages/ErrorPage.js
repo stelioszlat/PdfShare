@@ -7,6 +7,7 @@ const ErrorPage = props => {
 
     return (
         <>
+            <Header />
             <div className='error-message'>
                 <h3>This url isn't probably what you want</h3>
                 <h5>Try something else to see something interesting</h5>

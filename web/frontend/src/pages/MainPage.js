@@ -4,18 +4,19 @@ import Header from '../interface/Header';
 import AddButton from '../components/AddButton';
 import FileContainer from '../interface/FileContainer';
 import TypicalLogo from '../components/TypicalLogo';
-import { useSelector } from 'react-redux';
+// import { useSelector } from 'react-redux';
 import SearchField from '../components/SearchField';
 
 const MainPage = props => {
-    const isLoggedIn = useSelector(state => state.auth.isLoggedIn);
-    const editFile = useSelector(state => state.files.editFile);
+    // const isLoggedIn = useSelector(state => state.auth.isLoggedIn);
+    const isLoggedIn = true;
+    // const editFile = useSelector(state => state.files.editFile);
     return (
         <>
             <Header />
             {!isLoggedIn && <TypicalLogo logo="PdfShare is a way of sharing pdf files"/>}
             {!isLoggedIn && <SearchField/>}
-            {isLoggedIn && !editFile && <FileContainer /> }
+            <FileContainer />
             {isLoggedIn && <AddButton />}
         </>
     );

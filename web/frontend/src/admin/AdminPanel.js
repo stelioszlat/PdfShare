@@ -5,7 +5,7 @@ import TextButton from '../components/TextButton';
 
 import UserRecords from './UserRecords';
 import FileRecords from './FileRecords';
-import Button from '../components/Button';
+import Button from '@mui/material/Button';
 import UserEntryPanel from './UserEntryPanel';
 import TokenRecords from './TokenRecords';
 import LogsRecords from './LogsRecords';

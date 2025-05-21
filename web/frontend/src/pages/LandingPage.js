@@ -11,9 +11,9 @@ const LandingPage = props => {
     return (
         <> 
             <Header />
-            <div style="padding: 100px;">
+            <div>
                 <TypicalLogo logo="PdfShare is a way of sharing pdf files"/>
-                <SearchField/>
+                {!isLoggedIn && <SearchField/>}
             </div>
         </>
     );
