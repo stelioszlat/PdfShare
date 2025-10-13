@@ -40,3 +40,19 @@ exports.isAdmin = (req, res, next) => {
     }
     next();
 }
+
+exports.isSelf = async (req, res, next) => {
+    const userId = req.param.userId;
+    if (userId) {
+        try {
+            const user = await User.findById(userId);
+
+            if (!(user.username === req.username)) {
+                return res.status(403).json({ message: "You are not authorized to access this resource (self)" });
+            }
+        } catch (err) {
+            return next(err);
+        }
+    }
+    next();
+}

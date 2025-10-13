@@ -14,17 +14,23 @@ const client = createClient({
 });
 
 exports.connect = async () => {
-    await client.connect().then(() => { console.log("Connected to cache on " + host) });
+    try {
+        await client.connect().then(() => { console.log("Connected to cache on " + host) });
+        cacheHealthCheck();
+        return true;
+    } catch (err) {
+        console.error(err)
+        return false;
+    }
 }
 
-// export const cacheHealthCheck = (): boolean => {
-//     client.exists().then((num: any) => {
-//         return true;
-//     }).catch((err: any) => {
-//         console.log('Redis client error.');
-//         return false;
-//     });
-// }
+const cacheHealthCheck = async () => {
+    try {
+        await client.exists();
+    } catch (err) {
+        console.log('Redis client error.');
+    }
+}
 
 exports.get = async (key) => {
     return await client.get(key).then(data => { return JSON.parse(data)});

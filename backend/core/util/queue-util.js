@@ -9,7 +9,7 @@ const QUEUE_HOST = process.env.QUEUE_HOST;
 exports.connectQueue = async () => {
     try {
         connection = await amqp.connect(QUEUE_HOST);
-        const channel = await connection.createChannel();
+        channel = await connection.createChannel();
 
         await channel.assertQueue('metadata-queue');
         
@@ -22,8 +22,10 @@ exports.connectQueue = async () => {
                 channel.ack(data);
             }
         });
+        return true
     } catch (err) {
         console.log(err);
+        return false
     }
 }
 

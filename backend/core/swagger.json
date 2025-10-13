@@ -9,7 +9,7 @@
             "url": "https://opensource.org/licenses/MIT"
         }
     },
-    "host": "localhost:8080",
+    "host": "localhost:8087",
     "basePath": "/api",
     "tags": [
         {
@@ -44,7 +44,7 @@
     "security": [ { "Bearer": [] } ],
     "paths": {
         "/search": {
-            "post": {
+            "get": {
                 "summary": "Search files",
                 "tags": ["Search"],
                 "consumes": "application/json",

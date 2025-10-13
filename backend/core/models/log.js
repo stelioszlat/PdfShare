@@ -5,6 +5,7 @@ const logSchema = mongoose.Schema({
     logTime: {type: Date},
     ipAddress: {type: String},
     url: {type: String},
+    methid: {type: String},
     authorization: {type: String},
     message: {type: String}
 }, { timestamps: true, collection: 'logs' });

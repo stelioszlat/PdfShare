@@ -1,8 +1,8 @@
-
 const mongoose = require('mongoose');
+
 const Metadata = require('../models/metadata');
 const User = require('../models/user');
-// const cache = require('../util/redis-util');
+const cache = require('../util/redis-util');
 const index = require('../util/elastic-util');
 
 exports.addMetadata = async (req, res, next) => {
@@ -60,9 +60,9 @@ exports.getMetadata = async (req, res, next) => {
         page,
         limit
     } = req.query;
-    // search cache first
     
     try {
+
         const files = await Metadata.find({}, { keywords: 0, __v: 0}).limit(+limit).skip((+page - 1) * +limit);
 
         let count = await Metadata.countDocuments();

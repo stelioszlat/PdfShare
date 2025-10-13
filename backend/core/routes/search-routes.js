@@ -7,6 +7,6 @@ const { search } = require('../controllers/search-controller');
 const router = Router();
 
 // /api/search
-router.get('', authenticate, search);
+router.get('', search);
 
 module.exports = router;

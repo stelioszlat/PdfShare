@@ -1,4 +1,5 @@
 const Log = require('../models/log');
+const { sendLog } = require('../util/queue-util');
 
 exports.log = async (req, res, next) => {
     try {
@@ -7,12 +8,12 @@ exports.log = async (req, res, next) => {
             logTime: new Date(),
             ipAddress: req.ip,
             url: req.originalUrl,
-            authorization: req.header('Authorization')?.split(' ')[1],
+            method: req.method,
+            // authorization: req.header('Authorization')?.split(' ')[1],
             message: req.message
         });
     
-        const newLogResult = await newLog.save();
-        console.log(newLogResult);
+        await newLog.save();
     } catch(err) {
         console.log(err);
     } finally {

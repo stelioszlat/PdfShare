@@ -1,7 +1,7 @@
 const Metadata = require('../models/metadata');
 
 exports.search = async (req, res, next) => {
-    console.log(req.query);
+    // console.log(req.query);
     const { query, file, author, uploader } = req.query;
     const { keywords } = req.body;
 
