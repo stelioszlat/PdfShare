@@ -5,6 +5,7 @@ const UserSchema = mongoose.Schema({
     email: { type: String },
     password: { type: String },
     isAdmin: { type: Boolean },
+    isActive: { type: Boolean },
     lastLogin: { type: String },
     apiToken: { type: String },
 }, { timestamps: true, collection: 'users' });
