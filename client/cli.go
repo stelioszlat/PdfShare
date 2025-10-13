@@ -6,7 +6,9 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"mime/multipart"
@@ -19,7 +21,7 @@ import (
 type User struct {
 	Username  string `json:"username,omitempty"`
 	Email     string `json:"email,omitempty"`
-	Active    bool   `json:"active,omitempty"`
+	Active    bool   `json:"isActive,omitempty"`
 	IsAdmin   bool   `json:"isAdmin,omitempty"`
 	LastLogin string `json:"lastLogin,omitempty"`
 	ApiToken  string `json:"apiToken,omitempty"`
@@ -58,21 +60,25 @@ type LoginResponse struct {
 	Message     string `json:"message,omitempty"`
 }
 
+type UploadBody struct {
+	file bytes.Buffer
+}
+
 func GetUsers(token string) (result string) {
 	var endpoint strings.Builder
-	fmt.Fprintf(&endpoint, "%s/user/all", "http://localhost:8086/api")
+	fmt.Fprintf(&endpoint, "%s/user/all", "http://localhost:8060/api")
 	fmt.Printf("Calling endpoint %s\n", endpoint.String())
 
 	req, err := http.NewRequest("GET", endpoint.String(), nil)
 	if err != nil {
-		panic(err)
+		handleError(err)
 	}
 	req.Header.Add("Authorization", "Bearer "+token)
 
 	client := &http.Client{}
 	response, err := client.Do(req)
 	if err != nil {
-		panic(err)
+		handleError(err)
 	}
 	defer response.Body.Close()
 
@@ -81,11 +87,17 @@ func GetUsers(token string) (result string) {
 	jsonError := json.Unmarshal(responseBody, &jsonResponse)
 
 	if jsonError != nil {
-		fmt.Printf("Error: %s\n", jsonError.Error())
+		handleError(err)
 	}
 
 	for _, element := range jsonResponse.Users {
-		fmt.Println(element.Username)
+		var userActivity string = ""
+		if element.Active {
+			userActivity = "active"
+		} else {
+			userActivity = "inactive"
+		}
+		fmt.Printf("User %s with e-mail %s is currently %s \n", element.Username, element.Email, userActivity)
 	}
 
 	return
@@ -97,8 +109,7 @@ func Search(query string) (result string) {
 	fmt.Printf("Calling endpoint %s\n", endpoint.String())
 	response, err := http.Get(endpoint.String())
 	if err != nil {
-		fmt.Printf("Search failed: %v\n", err)
-		return
+		handleError(err)
 	}
 	defer response.Body.Close()
 
@@ -107,7 +118,7 @@ func Search(query string) (result string) {
 	jsonError := json.Unmarshal(responseBody, &jsonResponse)
 
 	if jsonError != nil {
-		fmt.Printf("Error: %s\n", jsonError.Error())
+		handleError(jsonError)
 	}
 
 	for _, element := range jsonResponse.Files {
@@ -123,8 +134,7 @@ func GetFiles() (result string) {
 	fmt.Printf("Calling endpoint %s\n", endpoint.String())
 	response, err := http.Get(endpoint.String())
 	if err != nil {
-		fmt.Printf("Files fetch failed: %v\n", err)
-		return
+		handleError(err)
 	}
 	defer response.Body.Close()
 
@@ -133,7 +143,7 @@ func GetFiles() (result string) {
 	jsonError := json.Unmarshal(responseBody, &jsonResponse)
 
 	if jsonError != nil {
-		fmt.Printf("Error: %s\n", jsonError.Error())
+		handleError(err)
 	}
 
 	for _, element := range jsonResponse.Files {
@@ -160,19 +170,18 @@ func Login() (result string) {
 	fmt.Printf("Password:")
 	passwordArr, err := term.ReadPassword(0)
 	if err != nil {
-		fmt.Printf("Password insert failed: %v\n", err)
+		handleError(err)
 	}
 	body["password"] = string(passwordArr[:])
 
 	fmt.Println("Login as user ", body["username"])
 
-	fmt.Fprintf(&endpoint, "%s/auth/login", "http://localhost:8086/api")
+	fmt.Fprintf(&endpoint, "%s/auth/login", "http://localhost:8060/api")
 	fmt.Println("Calling endpoint ", endpoint.String())
 
 	response, err := http.Post(endpoint.String(), "application/json", getJsonBody(body))
 	if err != nil {
-		fmt.Printf("Login failed: %v\n", err)
-		return
+		handleError(err)
 	}
 
 	var jsonResponse LoginResponse
@@ -180,7 +189,7 @@ func Login() (result string) {
 	jsonError := json.Unmarshal(responseBody, &jsonResponse)
 
 	if jsonError != nil {
-		fmt.Printf("Error: %s\n", jsonError.Error())
+		handleError(jsonError)
 	}
 
 	if jsonResponse.Accesstoken != "" {
@@ -212,16 +221,14 @@ func Upload(fileName string, local bool) {
 
 	osFile, err := os.Open(fileName)
 	if err != nil {
-		fmt.Println(err.Error())
-		os.Exit(1)
+		handleError(err)
 	}
 
 	multipartWriter := multipart.NewWriter(&body.file)
 	filePart, _ := multipartWriter.CreateFormFile("file", fileName)
 	_, err = io.Copy(filePart, osFile)
 	if err != nil {
-		fmt.Println("Error copying file content:", err)
-		return
+		handleError(err)
 	}
 	multipartWriter.Close()
 
@@ -234,10 +241,91 @@ func Upload(fileName string, local bool) {
 	osFile.Close()
 }
 
+func Sync(dir string, local bool) {
+	var endpoint strings.Builder
+	type UploadBody struct {
+		file bytes.Buffer
+	}
+	body := UploadBody{}
+	var files []string
+
+	fmt.Println("Searching files in directory " + dir)
+
+	err := filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+
+		if !info.IsDir() && strings.HasSuffix(strings.ToLower(info.Name()), ".pdf") {
+			files = append(files, path)
+			fmt.Println("Found: " + path)
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		handleError(err)
+	}
+
+	if len(files) == 0 {
+		fmt.Println("No .pdf files found on this directory")
+		os.Exit(1)
+	}
+
+	fmt.Fprintf(&endpoint, "%s/extra/upload", "http://localhost:8070/api")
+	fmt.Printf("Calling endpoint %s\n", endpoint.String())
+
+	for _, fileName := range files {
+
+		osFile, err := os.Open(fileName)
+		if err != nil {
+			handleError(err)
+		}
+
+		multipartWriter := multipart.NewWriter(&body.file)
+		filePart, _ := multipartWriter.CreateFormFile("file", fileName)
+		_, err = io.Copy(filePart, osFile)
+		if err != nil {
+			handleError(err)
+		}
+		multipartWriter.Close()
+
+		request, _ := http.NewRequest("POST", endpoint.String(), &body.file)
+		request.Header.Set("Content-Type", multipartWriter.FormDataContentType())
+		client := &http.Client{}
+		client.Do(request)
+
+		// fmt.Println(request)
+		osFile.Close()
+	}
+}
+
+func Download(fileName string) {
+	var endpoint strings.Builder
+
+	encodedFileName := url.QueryEscape(fileName)
+
+	fmt.Fprintf(&endpoint, "%s/extra/download&file=%s", "http://localhost:8070/api", encodedFileName)
+	fmt.Printf("Calling endpoint %s\n", endpoint.String())
+
+	response, err := http.Get(endpoint.String())
+	if err != nil {
+		handleError(err)
+	}
+	defer response.Body.Close()
+
+}
+
+func handleError(err error) {
+	fmt.Printf("Error: %s\n", err.Error())
+	os.Exit(-1)
+}
+
 func getAccessToken() string {
 	err := godotenv.Load()
 	if err != nil {
-		fmt.Println("Error loading .env file")
+		handleError(err)
 	}
 
 	accessToken := os.Getenv("PDFCLI_TOKEN")
@@ -251,7 +339,7 @@ func getAccessToken() string {
 func setAccessToken(token string) {
 	f, err := os.Create(".env")
 	if err != nil {
-		panic(err)
+		handleError(err)
 	}
 	defer f.Close()
 
@@ -276,7 +364,6 @@ func getJsonBody(body any) *bytes.Buffer {
 }
 
 func main() {
-	var apiEndpoint string
 	var localFlag bool
 
 	var usrCmd = &cobra.Command{
@@ -329,27 +416,33 @@ func main() {
 		},
 	}
 
+	var syncCmd = &cobra.Command{
+		Use:   "sync [--local]",
+		Short: "Sync all local .pdf files locally or on the cloud",
+		Run: func(cmd *cobra.Command, args []string) {
+			var dir string = "./"
+			if len(args) != 0 {
+				dir = args[0]
+			}
+			Sync(dir, localFlag)
+		},
+	}
+
+	var downloadCmd = &cobra.Command{
+		Use:     "download <file>",
+		Short:   "Download a file from the cloud",
+		Aliases: []string{"get"},
+		Run: func(cmd *cobra.Command, args []string) {
+			Download(args[0])
+		},
+	}
+
 	var rootCmd = &cobra.Command{
 		Use:   "pdfcli",
 		Short: "pdfcli is a tool to use the pdfshare from the console",
 		Long:  `pdfcli is a tool to fetch data from the Pdfshare API and perform all the actions from the console`,
 		Run: func(cmd *cobra.Command, args []string) {
-			// Call the API
-			response, err := http.Get(apiEndpoint)
-			if err != nil {
-				fmt.Printf("Failed to make the API call: %v\n", err)
-				return
-			}
-			defer response.Body.Close()
-
-			body, err := io.ReadAll(response.Body)
-			if err != nil {
-				fmt.Printf("Failed to read the response body: %v\n", err)
-				return
-			}
-
-			fmt.Println("API Response:")
-			fmt.Println(string(body))
+			cmd.Help()
 		},
 	}
 
@@ -359,6 +452,9 @@ func main() {
 	rootCmd.AddCommand(loginCmd)
 	uploadCmd.Flags().BoolVar(&localFlag, "local", false, "Enable local mode")
 	rootCmd.AddCommand(uploadCmd)
+	syncCmd.Flags().BoolVar(&localFlag, "local", false, "Enable local mode")
+	rootCmd.AddCommand(syncCmd)
+	rootCmd.AddCommand(downloadCmd)
 
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)
