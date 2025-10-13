@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 
 import { getLogs } from '../services/metadata-service';
+import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
 
 const LogsRecords = props => {
     const [logs, setLogs] = useState([]);
@@ -9,8 +10,8 @@ const LogsRecords = props => {
         fetchLogs();
     }, []);
 
-    const fetchLogs = useCallback(async () => {
-        await getLogs()
+    const fetchLogs = useCallback(() => {
+        getLogs()
         .then(response => {
             response.json().then(data => {
                 if (!data.logs) {
@@ -23,28 +24,30 @@ const LogsRecords = props => {
 
     return (
         <div className='logs'>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Username</th>
-                        <th>Time</th>
-                        <th>IP Address</th>
-                        <th>URL Visited</th>
-                        <th>Message</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {logs.map(log => {
-                        return <tr key={log._id}>
-                            <td>{log.username}</td>
-                            <td>{log.logTime}</td>
-                            <td>{log.ipAddress}</td>
-                            <td>{log.url}</td>
-                            <td>{log.message}</td>
-                        </tr>
-                    })}
-                </tbody>
-            </table>
+            <TableContainer component={Paper}>
+                <Table>
+                    <TableHead>
+                        <TableRow>
+                            <TableCell>Username</TableCell>
+                            <TableCell>Date</TableCell>
+                            <TableCell>Address</TableCell>
+                            <TableCell>URL Visited</TableCell>
+                            <TableCell>Message</TableCell>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        {logs.map(log => {
+                            return <TableRow key={log._id}>
+                                <TableCell>{log.username}</TableCell>
+                                <TableCell>{log.logTime}</TableCell>
+                                <TableCell>{log.ipAddress}</TableCell>
+                                <TableCell>{log.url}</TableCell>
+                                <TableCell>{log.message}</TableCell>
+                            </TableRow>
+                        })}
+                    </TableBody>
+                </Table>
+            </TableContainer>
         </div>
     );
 }

@@ -3,6 +3,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import styles from './admin.module.css';
 
 import { getFiles } from '../services/metadata-service';
+import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
 
 const FileRecords = props => {
     const [files, setFiles] = useState([]);
@@ -11,8 +12,8 @@ const FileRecords = props => {
         fetchFiles();
     }, []);
 
-    const fetchFiles = useCallback(async () => {
-        await getFiles()
+    const fetchFiles = useCallback(() => {
+        getFiles()
         .then(response => {
             response.json().then(data => {
                 if (!data.files) {
@@ -23,36 +24,40 @@ const FileRecords = props => {
                 console.log(err);
             })
         })
-    })
+    });
 
     return (
         <div className={styles['user-records']}>
-            <table>
-                <thead>
-                    <tr>
-                        <th>File</th>
-                        <th>Uploader</th>
-                        <th>Searched</th>
-                        <th>Changed</th>
-                        <th>Version</th>
-                        <th>Created</th>
-                        <th>Last Modified</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {files.map(file => {
-                        return <tr>
-                            <td>{file.fileName}</td>
-                            <td>{file.uploader}</td>
-                            <td>{file.timesQueried}</td>
-                            <td>{file.timesModified}</td>
-                            <td>{file.version}</td>
-                            <td>{new Date(file.createdAt).toDateString()}</td>
-                            <td>{new Date(file.updatedAt).toDateString()}</td>
-                        </tr>
-                    })}
-                </tbody>
-            </table>
+            <TableContainer component={Paper}>
+                <Table >
+                    <TableHead>
+                        <TableRow>
+                            <TableCell>File</TableCell>
+                            <TableCell>Link</TableCell>
+                            <TableCell>Uploader</TableCell>
+                            <TableCell>Searched</TableCell>
+                            <TableCell>Changed</TableCell>
+                            <TableCell>Version</TableCell>
+                            <TableCell>Created</TableCell>
+                            <TableCell>Last Modified</TableCell>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        {files.map(file => {
+                            return <TableRow key={file._id}>
+                                <TableCell>{file.fileName}</TableCell>
+                                <TableCell>{file.downloadLink}</TableCell>
+                                <TableCell>{file.uploader}</TableCell>
+                                <TableCell>{file.timesQueried}</TableCell>
+                                <TableCell>{file.timesModified}</TableCell>
+                                <TableCell>{file.version}</TableCell>
+                                <TableCell>{new Date(file.createdAt).toDateString()}</TableCell>
+                                <TableCell>{new Date(file.updatedAt).toDateString()}</TableCell>
+                            </TableRow>
+                        })}
+                    </TableBody>
+                </Table>
+            </TableContainer>
         </div>
     );
 }

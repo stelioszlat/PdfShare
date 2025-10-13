@@ -67,14 +67,16 @@ const SignInForm = props => {
                     return setError(data);
                 }
 
-                localStorage.setItem('access_token', data.access_token);
-                localStorage.setItem('userId', data.userId);
                 dispatch(authActions.login({ token: data.access_token, userId: data.userId, isAdmin: data.isAdmin }));
+
+                if (!data.access_token) {
+                    return 
+                }
 
                 if (data.isAdmin) {
                     navigate('/admin');
                 } else {
-                    navigate('/home');
+                    navigate('/home')
                 }
             });
         }).catch(err => {

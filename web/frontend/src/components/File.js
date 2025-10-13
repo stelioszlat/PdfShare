@@ -11,6 +11,7 @@ import { Card } from '@mui/material';
 const File = props => {
     // const dispatch = useDispatch();
     const [error, setError] = useState(null);
+    const [fileView, setFileView] = useState("grid");
 
     // const editHandler = event => {
     //     dispatch({ type: 'edit-file' });
@@ -40,28 +41,33 @@ const File = props => {
     }
 
     return (
-        <Card className={styles['file-wrapper']}>
-            <div className={styles['file-wrapper']} >
-                <div className={styles['file-header']}>
-                    <IconButton name="pdf" src="iwwa_file-pdf.png" onClick={downloadFileHandler}/>
-                    {error && <p style={{"color": "red"}}>File not found</p>}
-                </div>
-                <div className={styles['file-minified']}>
-                    {/* <IconButton name="pic" src="no_pic.png" /> */}
-                </div>
-                <div className={styles['file-footer']}>
-                    <div className={styles['file-details']}>
-                        <p className={styles['file-name']}>{ props.name }</p>
-                        <p className={styles['file-name']}>{ props.uploader }</p>
-                        <p>Last updated: { new Date(props.lastUpdated).toLocaleDateString() }</p>
+        <>
+            {fileView == 'grid' && <Card className={styles['file-wrapper']}>
+                <div className={styles['file-wrapper']} >
+                    <div className={styles['file-header']}>
+                        <IconButton name="pdf" src="iwwa_file-pdf.png" onClick={downloadFileHandler}/>
+                        {error && <p style={{"color": "red"}}>File not found</p>}
                     </div>
-                    {/* <div className={styles['file-control']}>
-                        <IconButton name="edit" src="ci_edit.png" onClick={editHandler} />
-                        <IconButton name="delete" src="icomoon-free_bin.png" onClick={deleteFileHandler} />
-                    </div> */}
+                    <div className={styles['file-minified']}>
+                        {/* <IconButton name="pic" src="no_pic.png" /> */}
+                    </div>
+                    <div className={styles['file-footer']}>
+                        <div className={styles['file-details']}>
+                            <p className={styles['file-name']}>{ props.name }</p>
+                            <p className={styles['file-name']}>{ props.uploader }</p>
+                            <p>Last updated: { new Date(props.lastUpdated).toLocaleDateString() }</p>
+                        </div>
+                        {/* <div className={styles['file-control']}>
+                            <IconButton name="edit" src="ci_edit.png" onClick={editHandler} />
+                            <IconButton name="delete" src="icomoon-free_bin.png" onClick={deleteFileHandler} />
+                            </div> */}
+                    </div>
                 </div>
-            </div>
-        </Card>
+            </Card>}
+            {fileView == 'list' && <mat-list>
+                
+            </mat-list>}
+        </>
     )
 }
 

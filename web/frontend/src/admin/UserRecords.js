@@ -6,6 +6,9 @@ import { getUsers, deleteUser, updateUser } from '../services/user-service';
 
 import Button from '../components/Button';
 import IconButton from '../components/IconButton';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
+import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
 const UserRecords = props => {
     const [users, setUsers] = useState([]);
 
@@ -50,7 +53,7 @@ const UserRecords = props => {
         .then(response => {
             response.json().then(data => {
                 const activatedUser = users.find(user => {return user._id === userId});
-                activatedUser.active = active;
+                activatedUser.isActive = active;
                 const filteredUsers = users.filter(user => {return user._id !== userId});
                 setUsers([...filteredUsers, activatedUser].sort((a, b) => { return a.username.localeCompare(b.username) }));
             })
@@ -61,34 +64,38 @@ const UserRecords = props => {
 
     return (
         <div className={styles['user-records']}>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Admin</th>
-                        <th>Username</th>
-                        <th>Email</th>
-                        <th>Last Login</th>
-                        <th>Joined</th>
-                        <th>Last Modified</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {users.map(user => {
-                        return <tr key={user._id}>
-                            <td>{user.isAdmin ? <b>Yes</b> : "No"}</td>
-                            <td>{user.username}</td>
-                            <td>{user.email}</td>
-                            <td>{user.lastLogin ? new Date(user.lastLogin).toLocaleString() : "Never" }</td>
-                            <td>{new Date(user.createdAt).toLocaleString()}</td>
-                            <td>{new Date(user.updatedAt).toLocaleString()}</td>
-                            {user.active && <td><Button label="Deactivate" onClick={() => toggleUserActivation(user._id, false)}/></td>}
-                            {!user.active && <td><Button label="Activate" onClick={() => toggleUserActivation(user._id, true)}/></td>}
-                            <td><IconButton src="ci_edit.png" onClick={() => showEditUserHandler(user._id)}/></td>
-                            <td><IconButton src="icomoon-free_bin.png" onClick={() => deleteUserHandler(user._id)}/></td>
-                        </tr>
-                    })}
-                </tbody>
-            </table>
+            <TableContainer component={Paper}>
+                <Table>
+                    <TableHead>
+                        <TableRow>
+                            <TableCell>Admin</TableCell>
+                            <TableCell>Username</TableCell>
+                            <TableCell>Email</TableCell>
+                            <TableCell>Last Login</TableCell>
+                            <TableCell>Joined</TableCell>
+                            <TableCell>Last Modified</TableCell>
+                            <TableCell>Active</TableCell>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        {users.map(user => {
+                            return <TableRow key={user._id}>
+                                <TableCell>{user.isAdmin ? <b>Yes</b> : "No"}</TableCell>
+                                <TableCell>{user.username}</TableCell>
+                                <TableCell>{user.email}</TableCell>
+                                <TableCell>{user.lastLogin ? new Date(user.lastLogin).toLocaleString() : "Never" }</TableCell>
+                                <TableCell>{new Date(user.createdAt).toLocaleString()}</TableCell>
+                                <TableCell>{new Date(user.updatedAt).toLocaleString()}</TableCell>
+                                <TableCell>{user.isActive ? <b>Yes</b> : 'No'}</TableCell>
+                                {/* {user.isActive && <TableCell><Button label="Deactivate" onClick={() => toggleUserActivation(user._id, false)}/></TableCell>} */}
+                                {/* {!user.isActive && <TableCell><Button label="Activate" onClick={() => toggleUserActivation(user._id, true)}/></TableCell>} */}
+                                <TableCell><EditIcon onClick={() => showEditUserHandler(user._id)}/></TableCell>
+                                <TableCell><DeleteIcon onClick={() => deleteUserHandler(user._id)}/></TableCell>
+                            </TableRow>
+                        })}
+                    </TableBody>
+                </Table>
+            </TableContainer>
         </div>
     );
 }

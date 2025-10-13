@@ -33,7 +33,7 @@ const SearchField = props => {
     }
 
     const searchHandler = useCallback(async (event) => {
-        await searchFile(query, {})
+        await searchFile(query)
         .then(result => {
             result.json().then(response => {
                 console.log(response);

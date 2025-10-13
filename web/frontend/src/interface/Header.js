@@ -36,7 +36,7 @@ const Header = props => {
     return (
         <div className={styles['header']}>
             <label>PdfShare</label>
-            {!isLoggedIn && <SearchField />}
+            {isLoggedIn && <SearchField />}
             {!isLoggedIn && <div className={styles['default-buttons']}>
                 <Button label="Sign In" onClick={showLoginHandler}></Button>
                 <Button label="Sign Up" onClick={showSignUpHandler}></Button>

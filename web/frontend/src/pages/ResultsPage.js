@@ -13,7 +13,7 @@ const MainPage = props => {
         <>
             <Header />
             <Results />
-            {isLoggedIn && <AddButton />}
+            <AddButton />
         </>
     );
 }

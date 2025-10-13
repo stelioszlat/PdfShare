@@ -81,13 +81,13 @@ const router = createBrowserRouter([
     path: "/error",
     element: <ErrorPage />
   }
-]);
+], { future: { v7_fetcherPersist: true, v7_normalizeFormMethod: true,}});
 
 function App() {
 
   return (
     <ThemeProvider theme={defaultTheme}>
-      <RouterProvider router={router}>
+      <RouterProvider router={router} future={{ v7_startTransition: true }}>
         <AdminPage />
         <LoginPage />
         <SignupPage />
