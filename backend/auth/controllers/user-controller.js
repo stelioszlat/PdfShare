@@ -13,7 +13,7 @@ const secret = process.env.SECRET;
 exports.getUsers = async (req, res, next) => {
     // get all users
     try {
-        const users = await User.find();
+        const users = await User.find({}).select('-password');
 
         if (!users) {
             return res.status(409).json({ message: 'Could not find users.' });
@@ -103,7 +103,7 @@ exports.getUserById = async (req, res, next) => {
             return res.status(200).json({user});
         }
 
-        user = await User.findById(userId);
+        user = await User.findById(userId).select('-password');
 
         if (!user) {
             return res.status(404).json({ message: 'User does not exist' });
