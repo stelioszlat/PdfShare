@@ -1,0 +1,132 @@
+# "org" ensures this Service is used with the correct Serverless Framework Access Key.
+org: stelioszlat
+service: pdfshare-serverless
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  stage: dev
+  profile: default
+  region: eu-north-1
+  timeout: 20
+  environment:
+    MONGO_URI: mongodb+srv://stelioszlat:ntERINguANdweSc@pdfcluster.0iyo1.mongodb.net/metadata?retryWrites=true&w=majority
+    SECRET: alksdjfhasdkfhjaskdhf
+
+functions:
+  getMetadata:
+    handler: ./handlers/metadata-handler.getMetadata
+    events:
+      - http:
+          path: files
+          method: get
+  addMetadata:
+    handler: ./handlers/metadata-handler.addMetadata
+    events:
+      - http:
+          path: files/new
+          method: post
+  getMetadataByUserId:
+    handler: ./handlers/metadata-handler.getMetadataByUserId
+    events:
+      - http:
+          path: files/user/{userId}
+          method: get
+  getMetadataById:
+    handler: ./handlers/metadata-handler.getMetadataById
+    events:
+      - http:
+          path: file/{fileId}
+          method: get
+  deleteMetadata:
+    handler: ./handlers/metadata-handler.deleteMetadata
+    events: 
+      - http:
+          path: file/{fileId}
+          method: delete
+  getUsers:
+    handler: ./handlers/user-handler.getUsers
+    events:
+      - http:
+          path: auth/user/all
+          method: get
+  createUser:
+    handler: ./handlers/user-handler.createUser
+    events:
+      - http:
+          path: auth/user
+          method: post
+  getUserById:
+    handler: ./handlers/user-handler.getUserById
+    events:
+      - http:
+          path: auth/user/{userId}
+          method: get
+  updateUserById:
+    handler: ./handlers/user-handler.updateUserById
+    events:
+      - http:
+          path: auth/user/{userId}
+          method: put
+  deleteUserById:
+    handler: ./handlers/user-handler.deleteUserById
+    events:
+      - http:
+          path: auth/user/{userId}
+          method: delete
+  login:
+    handler: ./handlers/auth-handler.login
+    events:
+      - http:
+          path: auth/login
+          method: post
+  logout:
+    handler: ./handlers/auth-handler.logout
+    events:
+      - http:
+          path: auth/logout
+          method: post
+  reset:
+    handler: ./handlers/auth-handler.reset
+    events:
+      - http:
+          path: auth/reset
+          method: post
+  getTokens:
+    handler: ./handlers/auth-handler.getTokens
+    events:
+      - http:
+          path: auth/token/all
+          method: get
+  createToken:
+    handler: ./handlers/auth-handler.createToken
+    events:
+      - http:
+          path: auth/token/{tokenId}
+          method: post
+  getTokenById:
+    handler: ./handlers/auth-handler.getTokenById
+    events:
+      - http:
+          path: auth/token/{tokenId}
+          method: get
+  register:
+    handler: ./handlers/auth-handler.register
+    events:
+      - http:
+          path: auth/register
+          method: post
+  upload:
+    handler: ./handlers/upload-handler.upload
+    events:
+      - http:
+          path: extra/upload
+          method: post
+  download:
+    handler: ./handlers/upload-handler.download
+    events:
+      - http:
+          path: extra/download
+          method: get 
+plugins:
+  - serverless-offline

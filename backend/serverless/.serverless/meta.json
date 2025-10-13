@@ -1,0 +1,282 @@
+{
+  "/home/zlat/thesis/backend/serverless/serverless.yml": {
+    "versionFramework": "4.16.1",
+    "servicePath": "/home/zlat/thesis/backend/serverless/serverless.yml",
+    "serviceConfigFileName": "serverless.yml",
+    "service": {
+      "org": "stelioszlat",
+      "service": "pdfshare-serverless",
+      "provider": {
+        "name": "aws",
+        "runtime": "nodejs18.x",
+        "stage": "dev",
+        "profile": "default",
+        "region": "eu-north-1",
+        "timeout": 20,
+        "environment": {
+          "MONGO_URI": "",
+          "SECRET": "<REDACTED>"
+        },
+        "versionFunctions": true
+      },
+      "functions": {
+        "getMetadata": {
+          "handler": "./handlers/metadata-handler.getMetadata",
+          "events": [
+            {
+              "http": {
+                "path": "files",
+                "method": "get"
+              }
+            }
+          ]
+        },
+        "addMetadata": {
+          "handler": "./handlers/metadata-handler.addMetadata",
+          "events": [
+            {
+              "http": {
+                "path": "files/new",
+                "method": "post"
+              }
+            }
+          ]
+        },
+        "getMetadataByUserId": {
+          "handler": "./handlers/metadata-handler.getMetadataByUserId",
+          "events": [
+            {
+              "http": {
+                "path": "files/user/{userId}",
+                "method": "get"
+              }
+            }
+          ]
+        },
+        "getMetadataById": {
+          "handler": "./handlers/metadata-handler.getMetadataById",
+          "events": [
+            {
+              "http": {
+                "path": "file/{fileId}",
+                "method": "get"
+              }
+            }
+          ]
+        },
+        "deleteMetadata": {
+          "handler": "./handlers/metadata-handler.deleteMetadata",
+          "events": [
+            {
+              "http": {
+                "path": "file/{fileId}",
+                "method": "delete"
+              }
+            }
+          ]
+        },
+        "getUsers": {
+          "handler": "./handlers/user-handler.getUsers",
+          "events": [
+            {
+              "http": {
+                "path": "auth/user/all",
+                "method": "get"
+              }
+            }
+          ]
+        },
+        "createUser": {
+          "handler": "./handlers/user-handler.createUser",
+          "events": [
+            {
+              "http": {
+                "path": "auth/user",
+                "method": "post"
+              }
+            }
+          ]
+        },
+        "getUserById": {
+          "handler": "./handlers/user-handler.getUserById",
+          "events": [
+            {
+              "http": {
+                "path": "auth/user/{userId}",
+                "method": "get"
+              }
+            }
+          ]
+        },
+        "updateUserById": {
+          "handler": "./handlers/user-handler.updateUserById",
+          "events": [
+            {
+              "http": {
+                "path": "auth/user/{userId}",
+                "method": "put"
+              }
+            }
+          ]
+        },
+        "deleteUserById": {
+          "handler": "./handlers/user-handler.deleteUserById",
+          "events": [
+            {
+              "http": {
+                "path": "auth/user/{userId}",
+                "method": "delete"
+              }
+            }
+          ]
+        },
+        "login": {
+          "handler": "./handlers/auth-handler.login",
+          "events": [
+            {
+              "http": {
+                "path": "auth/login",
+                "method": "post"
+              }
+            }
+          ]
+        },
+        "logout": {
+          "handler": "./handlers/auth-handler.logout",
+          "events": [
+            {
+              "http": {
+                "path": "auth/logout",
+                "method": "post"
+              }
+            }
+          ]
+        },
+        "reset": {
+          "handler": "./handlers/auth-handler.reset",
+          "events": [
+            {
+              "http": {
+                "path": "auth/reset",
+                "method": "post"
+              }
+            }
+          ]
+        },
+        "getTokens": "<REDACTED>",
+        "createToken": "<REDACTED>",
+        "getTokenById": "<REDACTED>",
+        "register": {
+          "handler": "./handlers/auth-handler.register",
+          "events": [
+            {
+              "http": {
+                "path": "auth/register",
+                "method": "post"
+              }
+            }
+          ]
+        },
+        "upload": {
+          "handler": "./handlers/upload-handler.upload",
+          "events": [
+            {
+              "http": {
+                "path": "extra/upload",
+                "method": "post"
+              }
+            }
+          ]
+        },
+        "download": {
+          "handler": "./handlers/upload-handler.download",
+          "events": [
+            {
+              "http": {
+                "path": "extra/download",
+                "method": "get"
+              }
+            }
+          ]
+        }
+      },
+      "plugins": [
+        "serverless-offline",
+        "serverless-package"
+      ]
+    },
+    "provider": {
+      "name": "aws",
+      "runtime": "nodejs18.x",
+      "stage": "dev",
+      "profile": "default",
+      "region": "eu-north-1",
+      "timeout": 20,
+      "environment": {
+        "MONGO_URI": "mongodb+srv://stelioszlat:ntERINguANdweSc@pdfcluster.0iyo1.mongodb.net/metadata?retryWrites=true&w=majority",
+        "SECRET": "<REDACTED>"
+      },
+      "versionFunctions": true
+    },
+    "dashboard": {
+      "isEnabledForService": false,
+      "requiredAuthentication": false,
+      "orgFeaturesInUse": null,
+      "orgObservabilityIntegrations": null,
+      "serviceAppId": null,
+      "serviceProvider": null,
+      "instanceParameters": null
+    },
+    "error": {
+      "message": "Cannot find module 'serverless/lib/plugins/aws/lib/validate'\nRequire stack:\n- /home/zlat/thesis/backend/serverless/node_modules/serverless-package/index.js",
+      "stack": "Error: Cannot find module 'serverless/lib/plugins/aws/lib/validate'\nRequire stack:\n- /home/zlat/thesis/backend/serverless/node_modules/serverless-package/index.js\n    at Module._resolveFilename (node:internal/modules/cjs/loader:1140:15)\n    at Module._load (node:internal/modules/cjs/loader:981:27)\n    at Module.require (node:internal/modules/cjs/loader:1231:19)\n    at require (node:internal/modules/helpers:177:18)\n    at Object.<anonymous> (/home/zlat/thesis/backend/serverless/node_modules/serverless-package/index.js:5:18)\n    at Module._compile (node:internal/modules/cjs/loader:1364:14)\n    at Module._extensions..js (node:internal/modules/cjs/loader:1422:10)\n    at Module.load (node:internal/modules/cjs/loader:1203:32)\n    at Module._load (node:internal/modules/cjs/loader:1019:12)\n    at ModuleWrap.<anonymous> (node:internal/modules/esm/translators:203:29)",
+      "code": "MODULE_NOT_FOUND"
+    },
+    "serviceRawFile": "# \"org\" ensures this Service is used with the correct Serverless Framework Access Key.\norg: stelioszlat\nservice: pdfshare-serverless\n\nprovider:\n  name: aws\n  runtime: nodejs18.x\n  stage: dev\n  profile: default\n  region: eu-north-1\n  timeout: 20\n  environment:\n    MONGO_URI: mongodb+srv://stelioszlat:ntERINguANdweSc@pdfcluster.0iyo1.mongodb.net/metadata?retryWrites=true&w=majority\n    SECRET: alksdjfhasdkfhjaskdhf\n\nfunctions:\n  getMetadata:\n    handler: ./handlers/metadata-handler.getMetadata\n    events:\n      - http:\n          path: files\n          method: get\n  addMetadata:\n    handler: ./handlers/metadata-handler.addMetadata\n    events:\n      - http:\n          path: files/new\n          method: post\n  getMetadataByUserId:\n    handler: ./handlers/metadata-handler.getMetadataByUserId\n    events:\n      - http:\n          path: files/user/{userId}\n          method: get\n  getMetadataById:\n    handler: ./handlers/metadata-handler.getMetadataById\n    events:\n      - http:\n          path: file/{fileId}\n          method: get\n  deleteMetadata:\n    handler: ./handlers/metadata-handler.deleteMetadata\n    events: \n      - http:\n          path: file/{fileId}\n          method: delete\n  getUsers:\n    handler: ./handlers/user-handler.getUsers\n    events:\n      - http:\n          path: auth/user/all\n          method: get\n  createUser:\n    handler: ./handlers/user-handler.createUser\n    events:\n      - http:\n          path: auth/user\n          method: post\n  getUserById:\n    handler: ./handlers/user-handler.getUserById\n    events:\n      - http:\n          path: auth/user/{userId}\n          method: get\n  updateUserById:\n    handler: ./handlers/user-handler.updateUserById\n    events:\n      - http:\n          path: auth/user/{userId}\n          method: put\n  deleteUserById:\n    handler: ./handlers/user-handler.deleteUserById\n    events:\n      - http:\n          path: auth/user/{userId}\n          method: delete\n  login:\n    handler: ./handlers/auth-handler.login\n    events:\n      - http:\n          path: auth/login\n          method: post\n  logout:\n    handler: ./handlers/auth-handler.logout\n    events:\n      - http:\n          path: auth/logout\n          method: post\n  reset:\n    handler: ./handlers/auth-handler.reset\n    events:\n      - http:\n          path: auth/reset\n          method: post\n  getTokens:\n    handler: ./handlers/auth-handler.getTokens\n    events:\n      - http:\n          path: auth/token/all\n          method: get\n  createToken:\n    handler: ./handlers/auth-handler.createToken\n    events:\n      - http:\n          path: auth/token/{tokenId}\n          method: post\n  getTokenById:\n    handler: ./handlers/auth-handler.getTokenById\n    events:\n      - http:\n          path: auth/token/{tokenId}\n          method: get\n  register:\n    handler: ./handlers/auth-handler.register\n    events:\n      - http:\n          path: auth/register\n          method: post\n  upload:\n    handler: ./handlers/upload-handler.upload\n    events:\n      - http:\n          path: extra/upload\n          method: post\n  download:\n    handler: ./handlers/upload-handler.download\n    events:\n      - http:\n          path: extra/download\n          method: get \nplugins:\n  - serverless-offline\n  - serverless-package",
+    "command": [
+      "offline"
+    ],
+    "options": {},
+    "orgId": "66d732ca-2c65-4571-b5e9-8c8464d3e087",
+    "orgName": "stelioszlat",
+    "userId": "SCKr3zsTvQx190pR94",
+    "userName": "stelioszlat",
+    "serviceProviderAwsAccountId": "629332487922",
+    "serviceProviderAwsCfStackName": "pdfshare-serverless-dev",
+    "serviceProviderAwsCfStackId": "arn:aws:cloudformation:eu-north-1:629332487922:stack/pdfshare-serverless-dev/bd8ff600-0931-11ee-b212-0a8020ba5c8a",
+    "serviceProviderAwsCfStackCreated": "2023-06-12T14:59:33.459Z",
+    "serviceProviderAwsCfStackUpdated": "2024-01-07T14:58:11.500Z",
+    "serviceProviderAwsCfStackStatus": "UPDATE_COMPLETE",
+    "serviceProviderAwsCfStackOutputs": [
+      {
+        "OutputKey": "ApiLambdaFunctionQualifiedArn",
+        "OutputValue": "arn:aws:lambda:eu-north-1:629332487922:function:pdfshare-serverless-dev-api:2",
+        "Description": "Current Lambda function version",
+        "ExportName": "sls-pdfshare-serverless-dev-ApiLambdaFunctionQualifiedArn"
+      },
+      {
+        "OutputKey": "HttpApiId",
+        "OutputValue": "b6vlpxgygk",
+        "Description": "Id of the HTTP API",
+        "ExportName": "sls-pdfshare-serverless-dev-HttpApiId"
+      },
+      {
+        "OutputKey": "ServiceEndpoint",
+        "OutputValue": "https://bl2gh48w59.execute-api.eu-north-1.amazonaws.com/dev",
+        "Description": "URL of the service endpoint",
+        "ExportName": "sls-pdfshare-serverless-dev-ServiceEndpoint"
+      },
+      {
+        "OutputKey": "ServerlessDeploymentBucketName",
+        "OutputValue": "pdfshare-serverless-dev-serverlessdeploymentbucke-18ghv5ur7423c",
+        "ExportName": "sls-pdfshare-serverless-dev-ServerlessDeploymentBucketName"
+      },
+      {
+        "OutputKey": "HttpApiUrl",
+        "OutputValue": "https://b6vlpxgygk.execute-api.eu-north-1.amazonaws.com",
+        "Description": "URL of the HTTP API",
+        "ExportName": "sls-pdfshare-serverless-dev-HttpApiUrl"
+      }
+    ]
+  }
+}
