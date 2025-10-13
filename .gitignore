@@ -19,6 +19,10 @@ backend/mail/package-lock.json
 backend/notifications/node_modules
 backend/notifications/.env
 backend/notifications/package-lock.json
+backend/test/node_modules
+backend/test/package-lock.json
+backend/serverless/node_modules
+backend/serverless/package-lock.json
 web/node_modules
 web/package-lock.json
 
