@@ -11,11 +11,15 @@ spec:
       - name: HOST
         value: "localhost"
       - name: PORT
-        value: "8070"
+        value: "8087"
       - name: SECRET
         value: ""
       - name: BACKEND
-        value: "localhost:8080"
+        value: "10.152.183.161:8087"
       - name: QUEUE_HOST
-        value: "amqp://10.98.241.97:5672"
+        value: "amqp://10.152.183.132:5672"
       name: extra
+      resources:
+        limits:
+          memory: "128Mi"
+          cpu: "500m"

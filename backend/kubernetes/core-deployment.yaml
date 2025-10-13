@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: core-deployment
+  labels:
+    app: core-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: core-deployment
+  template:
+    metadata:
+      labels:
+        app: core-deployment
+    spec:
+      containers:
+      - name: core
+        image: stelioszlat/core:1.0.0
+        ports:
+        - containerPort: 8087
+        env:
+        - name: QUEUE_HOST
+          value: amqp://queue:5672
+        - name: MONGO
+          valueFrom:
+            secretKeyRef:
+              name: mongo-uri-secret
+              key: MONGO

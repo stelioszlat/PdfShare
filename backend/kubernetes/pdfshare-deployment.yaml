@@ -1,8 +1,21 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: pdfshare
+  name: pdfshare-deployment
   labels:
     app: pdfshare
 spec:
-  replicas: 1
+  replicas: 3
+  selector:
+    matchLabels:
+      app: pdfshare
+  template:
+    metadata:
+      labels:
+        app: pdfshare
+    spec:
+      containers:
+      - name: core
+        image: stelioszlat/core:1.0.0
+        ports:
+        - containerPort: 8087

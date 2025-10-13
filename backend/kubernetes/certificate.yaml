@@ -1,0 +1,13 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: pdfshare-cert
+  namespace: default
+spec:
+  secretName: pdfshare-tls
+  issuerRef:
+    name: selfsigned-issuer
+    kind: ClusterIssuer
+  commonName: pdfshare.io
+  dnsNames:
+    - pdfshare.io

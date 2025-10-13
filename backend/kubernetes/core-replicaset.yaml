@@ -3,7 +3,7 @@ kind: ReplicaSet
 metadata:
   name: core
 spec:
-  replicas: 1
+  replicas: 3
   selector:
     matchExpressions:
       - key: app
@@ -17,16 +17,13 @@ spec:
     spec:
       containers:
       - name: core
-        image: stelioszlat/core:1.0.0
+        image: core:test
         env:
         - name: PORT
-          value: "8080"
+          value: "8087"
         - name: SECRET
-          value: ""
+          value: "alksdjfhasdkfhjaskdhf"
         - name: MONGO
-          value: ""
+          value: mongodb+srv://stelioszlat:ntERINguANdweSc@pdfcluster.0iyo1.mongodb.net/metadata?retryWrites=true&w=majority
         - name: QUEUE_HOST
-          valueFrom:
-            configMapKeyRef: 
-              name: pdfshare-config-map
-              value: QUEUE_HOST
+          value: 10.152.183.132:5672

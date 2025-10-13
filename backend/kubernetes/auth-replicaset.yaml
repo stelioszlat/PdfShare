@@ -20,9 +20,9 @@ spec:
         image: stelioszlat/auth:1.0.0
         env:
         - name: PORT
-          value: "8086"
+          value: "8087"
         - name: SECRET
-          value: ""
+          value: "alksdjfhasdkfhjaskdhf"
         - name: MONGO
           value: ""
         - name: REDIS_HOST

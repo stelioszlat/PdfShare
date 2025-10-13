@@ -9,7 +9,7 @@ spec:
     - image: stelioszlat/core:1.0.0
       env:
       - name: PORT
-        value: "8080"
+        value: "8087"
       - name: SECRET
         value: ""
       - name: MONGO

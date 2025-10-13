@@ -1,25 +1,14 @@
-apiVersion: apps/v1
-kind: ReplicaSet
-metadata: 
-  name: mongo
+apiVersion: mongodb.com/v1
+kind: MongoDB
+metadata:
+  name: pdfshare-mongo
 spec:
-  replicas: 1
-  selector:
-    matchExpressions:
-      - key: app
-        operator: In
-        values:
-          - mongo
-  template:
-    metadata:
-      labels:
-        app: mongo
-    spec:
-      containers:
-        - image: mongo:latest
-          name: mongo
-          ports:
-            - containerPort: 27017
-              protocol: TCP
-            - containerPort: 27018
-              protocol: TCP
+  members: 3
+  version: "6.4.0"
+  opsManager:
+    configMapRef:
+           # Must match metadata.name in ConfigMap file
+      name: pdfshare-mongo
+  credentials: <mycredentials>
+  type: ReplicaSet
+  persistent: true

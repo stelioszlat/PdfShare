@@ -1,11 +1,10 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: extra
+  name: extra-service
 spec:
-  type: ClusterIP
   ports:
   - port: 80
-    targetPort: 8070
+    targetPort: 8081
   selector:
     app: extra
