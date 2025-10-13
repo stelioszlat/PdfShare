@@ -3,6 +3,7 @@ const { json } = require('body-parser');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const swagger = require('swagger-ui-express');
+const prom = require('prom-client');
 
 const userRoutes = require('./routes/user-routes');
 const authRoutes = require('./routes/auth-routes');
@@ -18,6 +19,41 @@ util.connectDb(process.env.MONGO, {});
 util.connectCache();
 
 const app = express();
+const register = new prom.Registry();
+prom.collectDefaultMetrics({ register });
+
+const httpRequestDuration = new prom.Histogram({
+  name: 'http_request_duration_seconds',
+  help: 'Duration of HTTP requests in seconds',
+  labelNames: ['method', 'route', 'status_code'],
+  buckets: [0.1, 0.5, 1, 2, 5]
+});
+
+const httpRequestCounter = new prom.Counter({
+  name: 'http_requests_total',
+  help: 'Total number of HTTP requests',
+  labelNames: ['method', 'route', 'status_code']
+});
+
+register.registerMetric(httpRequestDuration);
+register.registerMetric(httpRequestCounter);
+
+app.use((req, res, next) => {
+  const start = Date.now();
+  
+  res.on('finish', () => {
+    const duration = (Date.now() - start) / 1000;
+    httpRequestDuration.labels(req.method, req.route?.path || req.path, res.statusCode).observe(duration);
+    httpRequestCounter.labels(req.method, req.route?.path || req.path, res.statusCode).inc();
+  });
+  
+  next();
+});
+
+app.get('/metrics', async (req, res) => {
+  res.set('Content-Type', register.contentType);
+  res.end(await register.metrics());
+});
 app.use(util.apiLogger);
 app.use(json());
 app.use(cors());
