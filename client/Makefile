@@ -9,7 +9,6 @@ search: pdfcli
 
 files: pdfcli
 	./pdfcli files
-	./pdfcli metadata
 
 login: pdfcli
 	./pdfcli login 
