@@ -64,9 +64,13 @@ type UploadBody struct {
 	file bytes.Buffer
 }
 
+var apiUrl string
+var authAPIUrl string
+var extraAPIUrl string
+
 func GetUsers(token string) (result string) {
 	var endpoint strings.Builder
-	fmt.Fprintf(&endpoint, "%s/user/all", "http://localhost:8060/api")
+	fmt.Fprintf(&endpoint, "%s/user/all", authAPIUrl)
 	fmt.Printf("Calling endpoint %s\n", endpoint.String())
 
 	req, err := http.NewRequest("GET", endpoint.String(), nil)
@@ -105,7 +109,7 @@ func GetUsers(token string) (result string) {
 
 func Search(query string) (result string) {
 	var endpoint strings.Builder
-	fmt.Fprintf(&endpoint, "%s/search?query=%s", "http://localhost:8087/api", query)
+	fmt.Fprintf(&endpoint, "%s/search?query=%s", apiUrl, query)
 	fmt.Printf("Calling endpoint %s\n", endpoint.String())
 	response, err := http.Get(endpoint.String())
 	if err != nil {
@@ -130,7 +134,7 @@ func Search(query string) (result string) {
 
 func GetFiles() (result string) {
 	var endpoint strings.Builder
-	fmt.Fprintf(&endpoint, "%s/metadata/files", "http://localhost:8087/api")
+	fmt.Fprintf(&endpoint, "%s/metadata/files", apiUrl)
 	fmt.Printf("Calling endpoint %s\n", endpoint.String())
 	response, err := http.Get(endpoint.String())
 	if err != nil {
@@ -176,7 +180,7 @@ func Login() (result string) {
 
 	fmt.Println("Login as user ", body["username"])
 
-	fmt.Fprintf(&endpoint, "%s/auth/login", "http://localhost:8060/api")
+	fmt.Fprintf(&endpoint, "%s/auth/login", authAPIUrl)
 	fmt.Println("Calling endpoint ", endpoint.String())
 
 	response, err := http.Post(endpoint.String(), "application/json", getJsonBody(body))
@@ -193,7 +197,7 @@ func Login() (result string) {
 	}
 
 	if jsonResponse.Accesstoken != "" {
-		fmt.Println("\nCopy this token to call the API on your own!\n")
+		fmt.Println("\nCopy this token to call the API on your own!")
 		fmt.Println(jsonResponse.Accesstoken)
 
 		setAccessToken(jsonResponse.Accesstoken)
@@ -216,7 +220,7 @@ func Upload(fileName string, local bool) {
 	}
 	body := UploadBody{}
 
-	fmt.Fprintf(&endpoint, "%s/extra/upload", "http://localhost:8070/api")
+	fmt.Fprintf(&endpoint, "%s/extra/upload", extraAPIUrl)
 	fmt.Printf("Calling endpoint %s\n", endpoint.String())
 
 	osFile, err := os.Open(fileName)
@@ -273,7 +277,7 @@ func Sync(dir string, local bool) {
 		os.Exit(1)
 	}
 
-	fmt.Fprintf(&endpoint, "%s/extra/upload", "http://localhost:8070/api")
+	fmt.Fprintf(&endpoint, "%s/extra/upload", extraAPIUrl)
 	fmt.Printf("Calling endpoint %s\n", endpoint.String())
 
 	for _, fileName := range files {
@@ -306,7 +310,7 @@ func Download(fileName string) {
 
 	encodedFileName := url.QueryEscape(fileName)
 
-	fmt.Fprintf(&endpoint, "%s/extra/download&file=%s", "http://localhost:8070/api", encodedFileName)
+	fmt.Fprintf(&endpoint, "%s/extra/download&file=%s", extraAPIUrl, encodedFileName)
 	fmt.Printf("Calling endpoint %s\n", endpoint.String())
 
 	response, err := http.Get(endpoint.String())
@@ -346,6 +350,18 @@ func setAccessToken(token string) {
 	f.WriteString("PDFCLI_TOKEN=" + token)
 }
 
+func loadAPIUrl(isServerless bool) {
+	if isServerless {
+		apiUrl = "http://localhost:3000/dev"
+		authAPIUrl = "http://localhost:3000/dev"
+		extraAPIUrl = "http://localhost:3000/dev"
+	} else {
+		apiUrl = "http://localhost:8087/api"
+		authAPIUrl = "http://localhost:8060/api"
+		extraAPIUrl = "http://localhost:8070/api"
+	}
+}
+
 func authenticate() *string {
 	token := getAccessToken()
 	if token != "" {
@@ -365,10 +381,14 @@ func getJsonBody(body any) *bytes.Buffer {
 
 func main() {
 	var localFlag bool
+	var isServerless bool
 
 	var usrCmd = &cobra.Command{
 		Use:   "users",
 		Short: "Get the users",
+		PersistentPreRun: func(cmd *cobra.Command, args []string) {
+			loadAPIUrl(isServerless)
+		},
 		Run: func(cmd *cobra.Command, args []string) {
 			token := authenticate()
 			if token != nil {
@@ -381,6 +401,9 @@ func main() {
 		Use:   "search [query]",
 		Short: "Search for a file",
 		Args:  cobra.ExactArgs(1),
+		PersistentPreRun: func(cmd *cobra.Command, args []string) {
+			loadAPIUrl(isServerless)
+		},
 		Run: func(cmd *cobra.Command, args []string) {
 			if authenticate() != nil {
 				Search(args[0])
@@ -391,6 +414,9 @@ func main() {
 	var filesCmd = &cobra.Command{
 		Use:   "files",
 		Short: "Get a list of the files registered",
+		PersistentPreRun: func(cmd *cobra.Command, args []string) {
+			loadAPIUrl(isServerless)
+		},
 		Run: func(cmd *cobra.Command, args []string) {
 			if authenticate() != nil {
 				GetFiles()
@@ -401,6 +427,9 @@ func main() {
 	var loginCmd = &cobra.Command{
 		Use:   "login",
 		Short: "Login with your credentials",
+		PersistentPreRun: func(cmd *cobra.Command, args []string) {
+			loadAPIUrl(isServerless)
+		},
 		Run: func(cmd *cobra.Command, args []string) {
 			Login()
 		},
@@ -410,6 +439,9 @@ func main() {
 		Use:     "upload <filename> [--local]",
 		Short:   "Upload file locally or on the cloud",
 		Aliases: []string{"up", "send"},
+		PersistentPreRun: func(cmd *cobra.Command, args []string) {
+			loadAPIUrl(isServerless)
+		},
 		Run: func(cmd *cobra.Command, args []string) {
 			getAccessToken()
 			Upload(args[0], localFlag)
@@ -419,6 +451,9 @@ func main() {
 	var syncCmd = &cobra.Command{
 		Use:   "sync [--local]",
 		Short: "Sync all local .pdf files locally or on the cloud",
+		PersistentPreRun: func(cmd *cobra.Command, args []string) {
+			loadAPIUrl(isServerless)
+		},
 		Run: func(cmd *cobra.Command, args []string) {
 			var dir string = "./"
 			if len(args) != 0 {
@@ -432,6 +467,9 @@ func main() {
 		Use:     "download <file>",
 		Short:   "Download a file from the cloud",
 		Aliases: []string{"get"},
+		PersistentPreRun: func(cmd *cobra.Command, args []string) {
+			loadAPIUrl(isServerless)
+		},
 		Run: func(cmd *cobra.Command, args []string) {
 			Download(args[0])
 		},
@@ -441,6 +479,9 @@ func main() {
 		Use:   "pdfcli",
 		Short: "pdfcli is a tool to use the pdfshare from the console",
 		Long:  `pdfcli is a tool to fetch data from the Pdfshare API and perform all the actions from the console`,
+		PersistentPreRun: func(cmd *cobra.Command, args []string) {
+			loadAPIUrl(isServerless)
+		},
 		Run: func(cmd *cobra.Command, args []string) {
 			cmd.Help()
 		},
@@ -455,6 +496,7 @@ func main() {
 	syncCmd.Flags().BoolVar(&localFlag, "local", false, "Enable local mode")
 	rootCmd.AddCommand(syncCmd)
 	rootCmd.AddCommand(downloadCmd)
+	rootCmd.PersistentFlags().BoolVarP(&isServerless, "serverless", "s", false, "Run on serverless API")
 
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)
