@@ -1,34 +1,33 @@
 const mongoose = require('mongoose');
 const User = require('../models/user');
 
-const { connect } = require('../util/database');
-const { response } = require('../util/response');
+const { connect, disconnect } = require('../util/database');
+const { response, error } = require('../util/response');
+const { signToken } = require('../util/auth');
 
-let client = null;
 const secret = process.env.SECRET;
 
 module.exports.getUsers = async (event) => {
     try {
-        client = await connect();
+        await connect();
 
-        const users = await User.find();
-
+        const users = await User.find({}).select('-password');
+    
         if (!users) {
             return response(404, { message: 'Could not find users.' });
         }
- 
+            
         return response(200, { users });
     } catch (err) {
-        console.log(err);
-        return response(500, { message: 'Could not find users.' });
+        console.error(err);
+        return error(err);
     } finally {
-        await client.disconnect();
+        await disconnect();
     }
 }
 
 module.exports.createUser = async (event) => {
     const body = JSON.parse(event.body);
-
     const { email, username, isAdmin, password, rePassword } = body;
 
     if (!email) {
@@ -52,7 +51,7 @@ module.exports.createUser = async (event) => {
     }
 
     try {
-        client = await connect();
+        await connect();
 
         const existingUser = await User.findOne({
             username: username,
@@ -63,12 +62,7 @@ module.exports.createUser = async (event) => {
             return response(409, { message: 'User already exists' });
         }
 
-        const apiToken = jwt.sign({
-            username: username,
-            password: password,
-            active: true,
-            isAdmin: isAdmin
-        }, secret);
+        const apiToken = signToken(existingUser);
 
         const hashedPassword = await bcrypt.hash(password, 12);
         const user = new User({
@@ -87,10 +81,10 @@ module.exports.createUser = async (event) => {
         
         return response(200, { user });
     } catch (err) {
-        console.log(err);
-        return response(500, { message: 'Could not createUser' });
+        console.error(err);
+        return error(err);
     } finally {
-        await client.disconnect();
+        await disconnect();
     }
 }
 
@@ -102,7 +96,7 @@ module.exports.getUserById = async (event) => {
     }
 
     try {
-        client = await connect();
+        await connect();
 
         const user = await User.findById(userId);
 
@@ -112,10 +106,10 @@ module.exports.getUserById = async (event) => {
 
         return response(200, { user });
     } catch (err) {
-        console.log(err);
-        return response(500, { message: 'Could not get user.' });
+        console.error(err);
+        return error(err);
     } finally {
-        await client.disconnect();
+        await disconnect();
     }
 }
 
@@ -128,7 +122,7 @@ module.exports.updateUserById = async (event) => {
     }
 
     try {
-        client = await connect();
+        await connect();
 
         const user = await User.findByIdAndUpdate(userId, {
             ...body
@@ -141,10 +135,10 @@ module.exports.updateUserById = async (event) => {
         return response(200, { user });
     
     } catch (err) {
-        console.log(err);
-        return response(500, { message: 'Could not update user' });
+        console.error(err);
+        return error(err);
     } finally {
-        await client.disconnect();
+        await disconnect();
     }
 }
 
@@ -157,7 +151,7 @@ module.exports.deleteUserById = async (event) => {
     }
 
     try {
-        client = await connect();
+        await connect();
 
         const user = await User.findByIdAndUpdate(userId, {});
 
@@ -168,9 +162,9 @@ module.exports.deleteUserById = async (event) => {
         return response(200, { user });
     
     } catch (err) {
-        console.log(err);
-        return response(500, { message: 'Could not delete user' });
+        console.error(err);
+        return error(err);
     } finally {
-        await client.disconnect();
+        await disconnect();
     }
 }

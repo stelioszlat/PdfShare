@@ -1,8 +1,6 @@
 const Metadata = require('../models/metadata');
-const { connect } = require('../util/database');
+const { connect, disconnect } = require('../util/database');
 const { response, error } = require('../util/response');
-
-let client = null;
 
 module.exports.search = async (event) => {
 
@@ -13,9 +11,9 @@ module.exports.search = async (event) => {
     //     return res.status(400).json({ message: 'Query not found.' });
     // }
 
-    client = await connect();
-
+    
     try {
+        await connect();
 
         const dbFiles = await Metadata.find({
             "$or": [
@@ -31,6 +29,8 @@ module.exports.search = async (event) => {
 
     } catch (err) {
         console.error(err);
-        response(500, { message: "An error occurred" });
+        return error(err);
+    } finally {
+        await disconnect();
     }
 }

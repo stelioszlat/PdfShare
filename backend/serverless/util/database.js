@@ -17,6 +17,14 @@ module.exports.connect = async () => {
 
         return client;
     } catch (err) {
-        console.log(err);
+        console.error(err);
+    }
+}
+
+module.exports.disconnect = async () => {
+    try {
+        await client.disconnect();
+    } catch (err) {
+        console.error(err);
     }
 }

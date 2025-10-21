@@ -14,65 +14,71 @@ provider:
     SECRET: alksdjfhasdkfhjaskdhf
 
 functions:
+  search:
+    handler: ./handlers/search-handler/search
+    events:
+      - http:
+          path: search
+          method: get
   getMetadata:
     handler: ./handlers/metadata-handler.getMetadata
     events:
       - http:
-          path: files
+          path: metadata/files
           method: get
   addMetadata:
     handler: ./handlers/metadata-handler.addMetadata
     events:
       - http:
-          path: files/new
+          path: metadata/file/new
           method: post
   getMetadataByUserId:
     handler: ./handlers/metadata-handler.getMetadataByUserId
     events:
       - http:
-          path: files/user/{userId}
+          path: metadata/files/user/{userId}
           method: get
   getMetadataById:
     handler: ./handlers/metadata-handler.getMetadataById
     events:
       - http:
-          path: file/{fileId}
+          path: metadata/file/{fileId}
           method: get
   deleteMetadata:
     handler: ./handlers/metadata-handler.deleteMetadata
     events: 
       - http:
-          path: file/{fileId}
+          path: metadata/file/{fileId}
           method: delete
   getUsers:
     handler: ./handlers/user-handler.getUsers
     events:
       - http:
-          path: auth/user/all
+          path: user/all
           method: get
   createUser:
     handler: ./handlers/user-handler.createUser
     events:
       - http:
-          path: auth/user
+          path: user
           method: post
   getUserById:
     handler: ./handlers/user-handler.getUserById
     events:
       - http:
-          path: auth/user/{userId}
+          path: user/{userId}
           method: get
   updateUserById:
     handler: ./handlers/user-handler.updateUserById
     events:
       - http:
-          path: auth/user/{userId}
+          path: user/{userId}
           method: put
   deleteUserById:
     handler: ./handlers/user-handler.deleteUserById
     events:
       - http:
-          path: auth/user/{userId}
+          path: user/{userId}
           method: delete
   login:
     handler: ./handlers/auth-handler.login

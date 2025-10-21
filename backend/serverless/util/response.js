@@ -1,12 +1,21 @@
 
 module.exports.response = (status, body) => {
-    return JSON.stringify({
+    return {
         statusCode: status,
-        body: {
+        body: JSON.stringify({
             ...body
-        },
+        }),
         headers: {
 
         }
-    });
+    };
 }
+
+module.exports.error = (err) => {
+    return {
+        statusCode: 500,
+        body: JSON.stringify({
+            message: err.message
+        })
+    };
+} 
