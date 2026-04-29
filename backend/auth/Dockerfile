@@ -1,6 +1,6 @@
 FROM node:alpine
 
-WORKDIR /home/backend/auth
+WORKDIR /auth
 
 COPY package*.json ./
 

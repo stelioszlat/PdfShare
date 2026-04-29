@@ -1,4 +1,4 @@
-const { connect } = require('mongoose');
+const mongoose = require('mongoose');
 const { createClient } = require('redis');
 const morgan = require('morgan');
 const dotenv = require('dotenv');
@@ -17,7 +17,8 @@ const client = createClient({
 });
 
 exports.connectDb = (uri, options) => {
-    connect(uri, {   
+    mongoose.set('strictQuery', false);
+    mongoose.connect(uri, {   
         ...options,
         useNewUrlParser: true,
         useUnifiedTopology: true,
@@ -36,30 +37,58 @@ exports.connectCache = async () => {
     });
 }
 
-exports.getFromCache = async (key) => {
+exports.get = async (key) => {
     if (!client.isOpen) {
-        return;
-    } 
+        return null;
+    }
     return await client.get(key).then(data => { return JSON.parse(data)});
 }
 
-exports.setToCache = async (key, value) => {
+exports.getMany = async (keys) => {
     if (!client.isOpen) {
-        return;
+        return null;
+    }
+    const pipeline = client.multi();
+    keys.forEach(key => {
+        pipeline.get(key);
+    });
+    const results = await pipeline.exec();
+    return results.map(([err, data]) => {
+        if (err) {
+            return null;
+        }
+        return JSON.parse(data);
+    });
+}
+
+exports.set = async (key, value) => {
+    if (!client.isOpen) {
+        return null;
     }
     return await client.set(key, JSON.stringify(value));
 }
 
-exports.deleteFromCache = async (key) => {
+exports.setMany = async (keyValuePairs) => {
     if (!client.isOpen) {
-        return;
+        return null;
+    }
+    const pipeline = client.multi();
+    keyValuePairs.forEach(({key, value}) => {
+        pipeline.set(key, JSON.stringify(value));
+    });
+    return await pipeline.exec();
+}
+
+exports.delete = async (key) => {
+    if (!client.isOpen) {
+        return null;
     }
     return await client.del(key);
 }
 
-exports.getManyFromCache = async (pattern) => {
+exports.keys = async (pattern) => {
     if (!client.isOpen) {
-        return;
+        return null;
     }
     return await client.keys(pattern);
 }
@@ -191,21 +220,16 @@ exports.isSelf = async (req, res, next) => {
 
 exports.isSelfOrAdmin = async (req, res, next) => {
     const userId = req.param.userId;
-
     if (userId) {
         try {
             const user = await User.findById(userId);
 
-            if (!(user.username === req.username)) {
-                return res.status(403).json({ message: "You are not authorized to access this resource (self)" });
+            if (!(user.username === req.username) || !req.isAdmin) {
+                return res.status(403).json({ message: "You are not authorized to access this resource (self or admin)" });
             }
         } catch (err) {
             return next(err);
         }
-    }
-
-    if (!req.isAdmin) {
-        return res.status(403).json({ message: "You are not authorized to access this resource" });
     }
     next();
 }

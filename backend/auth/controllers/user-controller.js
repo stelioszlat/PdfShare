@@ -61,30 +61,31 @@ exports.createUser = async (req, res, next) => {
             return res.status(409).json({ message: 'User already exists' });
         }
 
-        const apiToken = jwt.sign({
-            username: username,
-            password: password,
-            active: true,
-            isAdmin: isAdmin
-        }, secret);
-
         const hashedPassword = await bcrypt.hash(password, 12);
+        
         const user = new User({
             username: username,
             email: email,
-            active: true,
-            apiToken: apiToken,
             password: hashedPassword,
+            apiToken: apiToken,
+            active: true,
         });
+
+        const apiToken = jwt.sign({
+            userId: mongoose.Types.ObjectId(),
+            email: email,
+            username: username,
+            isAdmin: isAdmin,
+            active: true
+        }, secret);
+
+        user.apiToken = apiToken;
     
         const result = await user.save();
 
         if (!result) {
             return res.status(409).json({ message: 'Could not create user.'});
         }
-
-        await util.setToCache(user._id, user);
-        await util.setToCache(username, user);
         
         res.status(200).json({ user });
 
@@ -97,7 +98,7 @@ exports.getUserById = async (req, res, next) => {
     const userId = req.params.uid;
 
     try {
-        let user = await util.getFromCache(userId);
+        let user = await util.get(userId);
 
         if (user) {
             return res.status(200).json({user});
@@ -109,8 +110,8 @@ exports.getUserById = async (req, res, next) => {
             return res.status(404).json({ message: 'User does not exist' });
         }
 
-        await util.setToCache(user._id, user);
-        await util.setToCache(user.username, user); 
+        await util.set(user._id.toString(), user);
+        await util.set(user.username, user); 
 
         res.status(200).json({user});
     
@@ -132,10 +133,10 @@ exports.updateUserById = async (req, res, next) => {
             return res.status(404).json({ message: 'User does not exist' });
         }
 
-        await util.deleteFromCache(user._id);
-        await util.deleteFromCache(user.username);
-        await util.setToCache(user._id, user);
-        await util.setToCache(user.username, user);
+        await util.delete(user._id.toString());
+        await util.delete(user.username);
+        await util.set(user._id.toString(), user);
+        await util.set(user.username, user);
 
         res.status(200).json({ user });
     
@@ -155,8 +156,8 @@ exports.deleteUserById = async (req, res, next) => {
             return res.status(404).json({ message: 'User does not exist' });
         }
 
-        await util.deleteFromCache(user._id);
-        await util.deleteFromCache(user.username);
+        await util.delete(user._id.toString());
+        await util.delete(user.username);
 
         res.status(200).json({ user });
     

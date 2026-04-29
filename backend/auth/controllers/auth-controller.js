@@ -3,7 +3,8 @@ const bcrypt = require('bcryptjs');
 const User = require('../models/user-model');
 const util = require('../util/util');
 
-const secret = process.env.SECRET; 
+const secret = process.env.SECRET;
+const useCache = process.env.USE_CACHE === 'true';
 
 exports.login = async (req, res, next) => {
     const { username, password } = req.body;
@@ -17,47 +18,47 @@ exports.login = async (req, res, next) => {
     }
 
     try {
-
-        // let userFound = await util.getFromCache(username);
-
-        // if (!userFound) {
-        //     userFound = await User.findOne({
-        //         username: username,
-        //     });
-        // }
-        let userFound = await User.findOne({
-            username: username,
-        });
+        let userFound;
+        if (useCache) {
+            userFound = await util.get(username);
+        }
 
         if (!userFound) {
-            console.error("Could not find user");
+            userFound = await User.findOne({
+                username: username,
+            });
+        }
+
+        if (!userFound) {
             return res.status(404).json({ message: 'Could not find user.' });
         }
 
         const isCorrect = await bcrypt.compare(password, userFound.password);
         if (!isCorrect) {
-            console.error("Incorrect password");
             return res.status(409).json({ message: 'Incorrect password' });
         }
 
-        const token = await util.signToken(userFound);
+        const token = util.signToken(userFound);
 
-        const result = await User.findByIdAndUpdate(userFound._id, {
+        const result = await User.findByIdAndUpdate(userFound._id.toString(), {
             apiToken: token,
             lastLogin: new Date().toISOString()
-        })
+        });
+
         if (!result) {
-            console.error("Could not update login info")
             return res.status(409).json({ message: 'Could not update login info'});
         }
 
-        // await util.setToCache(username + '_token', token);
-        // await util.setToCache(username, userFound);
-    
+        if (useCache) {
+            await util.set(username + '_token', token);
+            await util.set(userFound._id.toString(), userFound);
+            await util.set(username, userFound);
+        }
+
         res.status(200).json({
             access_token: token,
             isAdmin: userFound.isAdmin,
-            userId: userFound._id 
+            userId: userFound._id.toString()
         });
         
     } catch (err) {
@@ -81,10 +82,11 @@ exports.logout = async (req, res, next) => {
             return res.status(404).json({ message: 'Could not find user.' });
         }
 
-        await util.deleteFromCache(userFound._id);
-        await util.deleteFromCache(username);
+        await util.delete(username + '_token');
+        await util.delete(userFound._id.toString());
+        await util.delete(username);
 
-        res.status(200).json({ message: 'User is logged out.' });
+        return res.status(200).json({ message: 'User is logged out.' });
         
     } catch (err) {
         return next(err);
@@ -92,7 +94,7 @@ exports.logout = async (req, res, next) => {
 }
 
 exports.reset = async (req, res, next) => {
-    const { email, oldPassword, newPassword } = req.body; 
+    const { email, newPassword } = req.body; 
 
     if (!email) {
         return res.status(400).json({ message: 'You need to enter an email'});
@@ -106,27 +108,9 @@ exports.reset = async (req, res, next) => {
         if (!userFound) {
             return res.status(404).json({ message: 'Could not find user.' });
         }
-    } catch (err) {
-        return next(err);
-    }
 
-    if (!oldPassword) {
-        return res.status(400).json({ message: 'You need to enter your old password.'});
-    }
-
-    if (!newPassword) {
-        return res.status(400).json({ message: 'You need to enter a new password' });
-    }
-
-    if (oldPassword === newPassword) {
-        return res.status(409).json({ message: 'You need to enter a different password' });
-    }
-
-    try {
-
-        const isCorrect = await bcrypt.compare(oldPassword, userFound.password);
-        if (!isCorrect) {
-            return res.status(409).json({ message: 'Incorrect password' });
+        if (!newPassword) {
+            return res.status(400).json({ message: 'You need to enter a new password' });
         }
 
         const hashedPassword = await bcrypt.hash(newPassword, 12);
@@ -173,20 +157,22 @@ exports.register = async (req, res, next) => {
     try {
         const hashedPassword = await bcrypt.hash(password, 12);
 
-        const apiToken = jwt.sign({
-            username: username,
-            password: hashedPassword,
-            isAdmin: false,
-            active: true
-        }, secret);
-
         const user = new User({
             username: username,
             email: email,
             active: true,
             password: hashedPassword,
-            apiToken: apiToken
         });
+
+        const apiToken = jwt.sign({
+            userId: user._id.toString(),
+            email: email,
+            username: username,
+            isAdmin: false,
+            active: true
+        }, secret);
+
+        user.apiToken = apiToken;
     
         const result = await user.save();
 
@@ -195,12 +181,14 @@ exports.register = async (req, res, next) => {
         }
 
         const token = util.signToken(user);
-        await util.setToCache(username + '_token', token);
-        await util.setToCache(username, user);
+        await util.set(username + '_token', token);
+        await util.set(user._id.toString(), user);
+        await util.set(username, user);
         
-        res.status(200).json({ access_token: token, userId: result._id });
+        res.status(200).json({ access_token: token, userId: result._id.toString() });
 
     } catch (err) {
+        console.error(err);
         return next(err);
     }
 };
@@ -219,7 +207,7 @@ exports.userExists = async (req, res, next) => {
 
     try {
 
-        const cachedUser = await util.getFromCache(username);
+        const cachedUser = await util.get(username);
 
         if (cachedUser) {
             return res.status(409).json({ message: 'User already exists. (cached)' });
