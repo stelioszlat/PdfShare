@@ -8,6 +8,10 @@ exports.addMetadata = async (req, res, next) => {
     const {fileName, uploader, keywords} = req.body;
 
     if (!fileName) {
+        return res.status(400).json({ message: 'File name is required' });;
+    }
+
+    if (!fileName) {
         return res.status(400).json({ message: 'File name is required' });
     }
 
@@ -53,8 +57,7 @@ exports.getMetadata = async (req, res, next) => {
             currentPage: Math.ceil(count / limit),
             files
         });
-    }
-    catch(err) {
+    } catch(err) {
         return next(err);
     }
 }
@@ -68,8 +71,11 @@ exports.getMetadataByUserId = async (req, res, next) => {
     }
 
     try {
+        let user = await cache.get(userId);
 
-        const user = await User.findById(userId, { keywords: 0, __v: 0});
+        if (!user) {
+            user = await User.findById(userId, { keywords: 0, __v: 0});
+        }
 
         if (!user) {
             return res.status(404).json({ message: 'Could not find user' });
@@ -83,21 +89,30 @@ exports.getMetadataByUserId = async (req, res, next) => {
             return res.status(404).json({ message: 'Could not find files' });
         }
 
-        res.status(200).json({ files });
+        // await cache.setMany(files.map(f => ({ key: f._id, value: f })));
 
-    }
-    catch (err) {
+        return res.status(200).json({ files });
+    } catch (err) {
         return next(err);
     }
 }
 
 exports.getMetadataById = async (req, res, next) => {
-    
     const fileId = req.params.fid;
 
-    try {
-        const file = await Metadata.findById(fileId);
+    if (!fileId || !mongoose.Types.ObjectId.isValid(fileId)) {
+        return res.status(400).json({ message: 'File id is not valid' });
+    }
 
+    try {
+        let file = await cache.get(fileId);
+
+        if (file) {
+            return res.status(200).json({file});
+        }
+        
+        file = await Metadata.findById(fileId);
+        
         if (!file) {
             return res.status(404).json({ message: 'Could not find file.' });
         }
@@ -110,8 +125,11 @@ exports.getMetadataById = async (req, res, next) => {
 }
 
 exports.deleteMetadataById = async (req, res, next) => {
-
     const fileId = req.params.fid;
+    
+    if (!fileId || !mongoose.Types.ObjectId.isValid(fileId)) {
+        return response(400, { message: 'File id is required' });
+    }
 
     try {
         const file = await Metadata.findById(fileId);

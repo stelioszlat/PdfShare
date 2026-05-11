@@ -60,16 +60,8 @@ exports.getTokenByUserId = async (req, res, next) => {
 };
 
 exports.getTokens = async (req, res, next) => {
-    let tokens = []
     try {
-        const users = await User.find();
-        console.log(users );
-        for (let user in users) {
-            tokens.push({
-                username: user.username,
-                token: user.apiToken
-            });
-        }
+        const tokens = await User.find().select('_id username apiToken');
         
         res.status(200).json({ tokens });
     } catch (err) {

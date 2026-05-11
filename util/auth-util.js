@@ -1,6 +1,9 @@
 const dotenv = require('dotenv');
 const jwt = require('jsonwebtoken');
 
+const User = require('../models/user');
+const Metadata = require('../models/metadata');
+
 dotenv.config();
 const secret = process.env.SECRET;
 
@@ -109,5 +112,37 @@ exports.isSelf = async (req, res, next) => {
             return next(err);
         }
     }
-    next(); 
+    next();
+}
+
+exports.isSelfOrAdmin = async (req, res, next) => {
+    const userId = req.param.userId;
+    if (userId) {
+        try {
+            const user = await User.findById(userId);
+
+            if (!(user.username === req.username) || !req.isAdmin) {
+                return res.status(403).json({ message: "You are not authorized to access this resource (self or admin)" });
+            }
+        } catch (err) {
+            return next(err);
+        }
+    }
+    next();
+}
+
+exports.isOwnerOrAdmin = async (req, res, next) => {
+    const fileId = req.param.fid;
+    if (fileId) {
+        try {
+            const file = await Metadata.findById(fileId);
+            
+            if (!(file.uploaderUsername === req.username) || !req.isAdmin) {
+                return res.status(403).json({ message: "You are not authorized to access this resource (owner or admin)" });
+            }
+        } catch (err) {
+            return next(err);
+        }
+    }
+    next();
 }

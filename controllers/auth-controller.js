@@ -145,13 +145,27 @@ exports.register = async (req, res, next) => {
             email: email,
             active: true,
             password: hashedPassword,
-            apiToken: apiToken
         });
-    
-        const result = await user.save();
 
-        if (!result) {
+        let result = await user.save();
+
+         if (!result) {
             return res.status(409).json({ message: 'Could not create user.'});
+        }
+
+        const apiToken = jwt.sign({
+            userId: result._id.toString(),
+            email: email,
+            username: username,
+            isAdmin: false,
+            active: true
+        }, secret);
+
+        user.apiToken = apiToken;
+        result = await user.save();
+    
+        if (!result) {
+            return res.status(409).json({ message: 'Could not save user token.'});
         }
 
         const token = util.signToken(user);
