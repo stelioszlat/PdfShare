@@ -153,7 +153,7 @@ exports.register = async (req, res, next) => {
             return res.status(409).json({ message: 'Could not create user.'});
         }
 
-        const apiToken = jwt.sign({
+        apiToken = jwt.sign({
             userId: result._id.toString(),
             email: email,
             username: username,

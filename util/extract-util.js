@@ -1,8 +1,9 @@
 const multer = require('multer');
 const fs = require('fs');
-const rest = require('axios').default;
+// const rest = require('axios').default;
 const pdf = require('pdf-parse');
 const miner = require('text-miner');
+const { addMetadata } = require('../controllers/meta-controller');
 
 
 const uploader = multer({ storage: multer.diskStorage({ 
@@ -57,16 +58,7 @@ const extractMiddleware = async (req, res, next) => {
 
         const keywords = terms.findFreqTerms(100);
 
-        // send metadata and then store metadata to the cache by metadata id
-        const result = await rest('http://127.0.0.1:8080/api/metadata/file/new', {
-            fileName: file.originalname,
-            uploader: 'stelioszlat',
-            keywords: keywords
-        }, {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + token
-        });
-
+        addMetadata(file.originalname, req.uploader, keywords);
         console.log('Result: ' + result);
 
         if (!result) {

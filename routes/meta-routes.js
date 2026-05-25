@@ -3,7 +3,6 @@ const { Router } = require("express");
 const meta = require("../controllers/meta-controller");
 // const metaValidation = require('../validation/metadataValidation');
 const { authenticate, isAdmin, isSelfOrAdmin, isOwnerOrAdmin } = require('../util/auth-util');
-const { createIndex, deleteIndex } = require('../util/elastic-util');
 
 const router = Router();
 
