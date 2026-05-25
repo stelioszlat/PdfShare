@@ -7,30 +7,43 @@ exports.addMetadata = async (req, res, next) => {
 
     const {fileName, uploader, keywords} = req.body;
 
-    if (!fileName) {
-        return res.status(400).json({ message: 'File name is required' });;
-    }
+    try {
+        const file = this.createMetadata({fileName, uploader, keywords});
 
-    if (!fileName) {
-        return res.status(400).json({ message: 'File name is required' });
+        if (!file) {
+            return res.status(400).json({ message: 'File name is required' });
+        }
+
+        return res.status(200).json({file});
+    } catch (err) {
+        return next(err);
+    }
+};
+
+exports.createMetadata = async (data) => {
+    if (!data.fileName) {
+        return false;
     }
 
     const addedMeta = new Metadata({
-        fileName: fileName,
-        uploader: uploader,
+        fileName: data.fileName,
+        uploader: data.uploader,
         timesQueried: 0,
         timesModified: 0,
         version: 1,
-        keywords: keywords
+        keywords: data.keywords
     });
 
     try {
         const file = await addedMeta.save();
 
-        return res.status(200).json(file);
+        console.log('Added new file: ' + file.fileName);
+
+        return file;
     }
     catch(err){
-        return next(err);
+
+        return false;
     }
 };
 

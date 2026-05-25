@@ -38,7 +38,7 @@ app.use(log);
 app.use('/api/metadata', metaRoutes);
 app.use('/api/logging', loggingRoutes);
 app.use('/api/search', searchRoutes);
-app.use('/api/extract', uploader.single('file'), extract);
+app.use('/api/extra/upload', uploader.single('file'), extract);
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api-docs', swagger.serve, swagger.setup(swaggerConfig));
