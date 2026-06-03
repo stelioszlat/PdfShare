@@ -14,7 +14,7 @@ const { format } = require('url');
 const { send, connectQueue } = require('./queue-util');
 const path = require('path');
 
-// const aws = require('@aws-sdk/clieent-s3');
+const awsS3 = require('@aws-sdk/client-s3');
 
 dotenv.config();
 const host = process.env.HOST;
@@ -39,22 +39,13 @@ const httpRequestCounter = new prom.Counter({
 register.registerMetric(httpRequestDuration);
 register.registerMetric(httpRequestCounter);
 
-// const s3 = new aws.S3Client({
-//     credentials: {
-//         accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-//         secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
-//     },
-//     region: process.env.AWS_REGION,
-// });
-
-// const s3Storage = multers3({
-//     s3: s3,
-//     bucket: process.env.S3_BUCKET,
-//     key: (req, file, cb) => {
-//         cb(null, file.originalname);
-//     }
-// });
-
+const s3 = new awsS3.S3Client({
+    region: process.env.AWS_REGION,
+    credentials: {
+        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+    },
+});
 
 const sanitizeFile = (file, cb) => {
     const fileExtensions = ['.pdf'];
@@ -70,16 +61,7 @@ const sanitizeFile = (file, cb) => {
 }
 
 const uploader = multer({
-    storage: multer.diskStorage({
-        destination: (req, file, cb) => {
-          // Set the destination folder where files will be uploaded
-          cb(null, 'files/');
-        },
-        filename: (req, file, cb) => {
-          // Keep the original file name
-          cb(null, file.originalname);  // This will save the file with its original name
-        }
-      }),
+    storage: multer.memoryStorage(),
     fileFilter: (req, file, cb) => {
         sanitizeFile(file, cb);
     }
@@ -96,15 +78,19 @@ const extractMiddleware = async (req, res, next) => {
 
     try {
 
-        const dataBuffer = fs.readFileSync('./files/' + file.originalname);
+        const dataBuffer = file.buffer;
 
         if (!dataBuffer) {
-            return res.status(404).json({ message: 'File does not exist.' });
+            return res.status(400).json({ message: 'Failed to process file.' });
         }
 
         const data = await pdf(dataBuffer);
 
-        data.text.replace(/^[_-\w]/gi, ' ');
+        let cleanText = data.text.replace(/^[_-\w]/gi, ' ');
+        cleanText = cleanText.replace(/[\n\r\t\f\b]/g, " ");
+        cleanText = cleanText.replace(/[\x00-\x1F\x7F-\x9F]/g, "");
+        cleanText = cleanText.replace(/\s+/g, " ");
+        cleanText = cleanText.replace(/[^a-zA-Z ]/g, " ");
 
         console.log('Info ' + data.info);
         console.log('Metadata ' + data.metadata);
@@ -122,28 +108,33 @@ const extractMiddleware = async (req, res, next) => {
         content.trim();
 
         const terms = new miner.DocumentTermMatrix(content);
+        const keywords = terms.findFreqTerms(100).filter(term => {
+            const isPureText = /^[a-zA-Z]+$/.test(term.word);
+    
+            return isPureText && term.word.length > 4;
+        });
 
-        const keywords = terms.findFreqTerms(100);
+        send({fileName: file.originalname, uploader: 'unknown', keywords: keywords });
 
-        send({fileName: file, uploader: 'stelioszlat', keywords: keywords });
+        console.log('Sent file: ' + file.originalname);
 
-        console.log('Sent file: ' + file);
+        await s3.send(new awsS3.PutObjectCommand({
+            Bucket: process.env.S3_BUCKET,
+            Key: file.originalname,
+            Body: file.buffer,
+        }));
         
-        return res.status(200).json({ message: 'File sent.', fileName: file, keywords: keywords });
+        return res.status(200).json({ message: 'File sent.', fileName: file.originalname, keywords: keywords });
     } catch (err) {
         console.error(err);
         return res.status(409).json({ message: 'Bad Request' });
     }
 };
 
-const uploadFile = (req, res, next) => {
-    return res.status(200).json({ message: req.file.originalname + ' uploaded' });
-}
-
 const downloadFile = async (req, res, next) => {
     const file = req.query.file;
 
-    const command = new aws.GetObjectCommand({
+    const command = new awsS3.GetObjectCommand({
         Bucket: process.env.S3_BUCKET,
         Key: file
     });
