@@ -1,7 +1,7 @@
 const Router = require('express');
 
 const tokenController = require('../controllers/token-controller');
-const { authenticate, isAdmin, isSelf } = require('../util/auth-util');
+const { authenticate, isAdmin, isSelf, isSelfOrAdmin } = require('../util/auth-util');
 
 const router = Router();
 
