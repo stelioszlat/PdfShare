@@ -55,8 +55,6 @@ module.exports.login = async (event) => {
     } catch (err) {
         console.log(err);
         return error(err);
-    } finally {
-        await disconnect();
     }
 }
 
@@ -83,8 +81,6 @@ exports.logout = async (event) => {
     } catch (err) {
         console.error(err);
         return error(err);
-    } finally {
-        await disconnect();
     }
 }
 
@@ -139,8 +135,6 @@ exports.reset = async (event) => {
     } catch (err) {
         console.error(err);
         return error(err);
-    } finally {
-        await disconnect();
     }
 } 
 
@@ -202,8 +196,6 @@ module.exports.register = async (event) => {
     } catch (err) {
         console.error(err);
         return error(err);
-    } finally {
-        await disconnect();
     }
 }
 
@@ -234,7 +226,5 @@ exports.userExists = async (event) => {
     } catch (err) {
         console.error(err);
         return error(err);
-    } finally {
-        await disconnect();
     }
 };

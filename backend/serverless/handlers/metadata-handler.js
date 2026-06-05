@@ -31,8 +31,6 @@ module.exports.getMetadata = async (event) => {
     } catch (err) {
         console.log(err);
         return error('Could not get metadata');
-    } finally {
-        await disconnect();
     }
 }
 
@@ -46,23 +44,43 @@ module.exports.addMetadata = async (event) => {
     try {
         await connect();
 
-        const addedMeta = new Metadata({
-            fileName: fileName,
-            uploader: uploader,
-            timesQueried: 0,
-            timesModified: 0,
-            version: 1,
-            keywords: keywords
-        });
+        const file = await this.createMetadata({ fileName, uploader, keywords });
 
-        const file = await addedMeta.save();
+        if (!file) {
+            return response(500, { message: 'Could not create metadata' });
+        }
 
         return response(200, { file });
     } catch (err) {
         console.log(err);
-        return error('Could not create metadata');
-    } finally {
-        await disconnect();
+        return response(500, { message: 'Could not create metadata' });
+    }
+}
+
+exports.createMetadata = async (data) => {
+    if (!data.fileName) {
+        return false;
+    }
+
+    const addedMeta = new Metadata({
+        fileName: data.fileName,
+        uploader: data.uploader,
+        timesQueried: 0,
+        timesModified: 0,
+        version: 1,
+        keywords: data.keywords
+    });
+
+    try {
+        const file = await addedMeta.save();
+
+        console.log('Added new file: ' + file.fileName);
+
+        return file;
+    }
+    catch(err){
+        console.log(err);
+        return false;
     }
 }
 
@@ -99,8 +117,6 @@ module.exports.getMetadataByUserId = async (event) => {
     } catch(err) {
         console.log(err);
         return error('Could not get user files');
-    } finally {
-        await disconnect();
     }
 }
 
@@ -129,8 +145,6 @@ module.exports.getMetadataById = async (event) => {
     } catch (err) {
         console.log(err);
         return error('Could not get file')
-    } finally {
-        await client.disconnect();
     }
 }
 
@@ -159,7 +173,5 @@ module.exports.deleteMetadata = async (event) => {
     } catch (err) {
         console.log(err);
         return error('Could not delete file')
-    } finally {
-        await disconnect();
     }
 }

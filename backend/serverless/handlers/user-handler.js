@@ -21,8 +21,6 @@ module.exports.getUsers = async (event) => {
     } catch (err) {
         console.error(err);
         return error(err);
-    } finally {
-        await disconnect();
     }
 }
 
@@ -83,8 +81,6 @@ module.exports.createUser = async (event) => {
     } catch (err) {
         console.error(err);
         return error(err);
-    } finally {
-        await disconnect();
     }
 }
 
@@ -108,8 +104,6 @@ module.exports.getUserById = async (event) => {
     } catch (err) {
         console.error(err);
         return error(err);
-    } finally {
-        await disconnect();
     }
 }
 
@@ -137,8 +131,6 @@ module.exports.updateUserById = async (event) => {
     } catch (err) {
         console.error(err);
         return error(err);
-    } finally {
-        await disconnect();
     }
 }
 
@@ -164,7 +156,5 @@ module.exports.deleteUserById = async (event) => {
     } catch (err) {
         console.error(err);
         return error(err);
-    } finally {
-        await disconnect();
     }
 }
