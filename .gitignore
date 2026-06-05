@@ -43,3 +43,6 @@ web/frontend/yarn.lock
 web/frontend/package-lock.json
 backend/auth/.env
 backend/core/.env
+backend/serverless/.env
+backend/store/node_modules/*
+*.pdf
