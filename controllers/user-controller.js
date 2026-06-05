@@ -11,9 +11,8 @@ const host = process.env.REDIS_HOST;
 const secret = process.env.SECRET;
 
 exports.getUsers = async (req, res, next) => {
-    // get all users
     try {
-        const users = await User.find();
+        const users = await User.find({}).select('-password');
 
         if (!users) {
             return res.status(409).json({ message: 'Could not find users.' });
@@ -58,32 +57,34 @@ exports.createUser = async (req, res, next) => {
         });
 
         if (existingUser) {
-            res.status(409).json({ message: 'User already exists' });
+            return res.status(409).json({ message: 'User already exists' });
         }
 
-        const apiToken = jwt.sign({
-            username: username,
-            password: password,
-            active: true,
-            isAdmin: isAdmin
-        }, secret);
-
         const hashedPassword = await bcrypt.hash(password, 12);
+        
         const user = new User({
             username: username,
             email: email,
-            active: true,
-            apiToken: apiToken,
             password: hashedPassword,
+            apiToken: apiToken,
+            active: true,
         });
+
+        const apiToken = jwt.sign({
+            userId: mongoose.Types.ObjectId(),
+            email: email,
+            username: username,
+            isAdmin: isAdmin,
+            active: true
+        }, secret);
+
+        user.apiToken = apiToken;
     
         const result = await user.save();
 
         if (!result) {
             return res.status(409).json({ message: 'Could not create user.'});
         }
-
-        await util.setToCache(username, result);
         
         res.status(200).json({ user });
 
@@ -96,10 +97,10 @@ exports.getUserById = async (req, res, next) => {
     const userId = req.params.uid;
 
     try {
-        const user = await User.findById(userId);
+        let user = await User.findById(userId).select('-password');
 
         if (!user) {
-            res.status(404).json({ message: 'User does not exist' });
+            return res.status(404).json({ message: 'User does not exist' });
         }
 
         res.status(200).json({user});
@@ -119,7 +120,7 @@ exports.updateUserById = async (req, res, next) => {
         });
 
         if (!user) {
-            res.status(404).json({ message: 'User does not exist' });
+            return res.status(404).json({ message: 'User does not exist' });
         }
 
         res.status(200).json({ user });

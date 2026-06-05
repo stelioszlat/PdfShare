@@ -17,8 +17,7 @@ exports.login = async (req, res, next) => {
     }
 
     try {
-
-        const userFound = await User.findOne({
+        let userFound = await User.findOne({
             username: username,
         });
 
@@ -31,19 +30,21 @@ exports.login = async (req, res, next) => {
             return res.status(409).json({ message: 'Incorrect password' });
         }
 
-        const result = await User.findByIdAndUpdate(userFound._id, {
-            lastLogin: new Date()
-        })
+        const token = util.signToken(userFound);
+
+        const result = await User.findByIdAndUpdate(userFound._id.toString(), {
+            apiToken: token,
+            lastLogin: new Date().toISOString()
+        });
+
         if (!result) {
-            res.status(409).json({ message: 'Could not update login info'});
+            return res.status(409).json({ message: 'Could not update login info'});
         }
 
-        const token = util.signToken(userFound);
-    
         res.status(200).json({
             access_token: token,
             isAdmin: userFound.isAdmin,
-            userId: userFound._id 
+            userId: userFound._id.toString()
         });
         
     } catch (err) {
@@ -51,8 +52,31 @@ exports.login = async (req, res, next) => {
     }
 };
 
+exports.logout = async (req, res, next) => {
+    const { username } = req.body;
+
+    if (!username) {
+        return res.status(400).json({ message: 'You need to enter a username' });
+    }
+
+    try {
+        const userFound = await User.findOne({
+            username: username
+        });
+
+        if (!userFound) {
+            return res.status(404).json({ message: 'Could not find user.' });
+        }
+
+        return res.status(200).json({ message: 'User is logged out.' });
+        
+    } catch (err) {
+        return next(err);
+    }
+}
+
 exports.reset = async (req, res, next) => {
-    const { email, oldPassword, newPassword } = req.body; 
+    const { email, newPassword } = req.body; 
 
     if (!email) {
         return res.status(400).json({ message: 'You need to enter an email'});
@@ -66,27 +90,9 @@ exports.reset = async (req, res, next) => {
         if (!userFound) {
             return res.status(404).json({ message: 'Could not find user.' });
         }
-    } catch (err) {
-        return next(err);
-    }
 
-    if (!oldPassword) {
-        return res.status(400).json({ message: 'You need to enter your old password.'});
-    }
-
-    if (!newPassword) {
-        return res.status(400).json({ message: 'You need to enter a new password' });
-    }
-
-    if (oldPassword === newPassword) {
-        return res.status(409).json({ message: 'You need to enter a different password' });
-    }
-
-    try {
-
-        const isCorrect = await bcrypt.compare(oldPassword, userFound.password);
-        if (!isCorrect) {
-            return res.status(409).json({ message: 'Incorrect password' });
+        if (!newPassword) {
+            return res.status(400).json({ message: 'You need to enter a new password' });
         }
 
         const hashedPassword = await bcrypt.hash(newPassword, 12);
@@ -133,13 +139,6 @@ exports.register = async (req, res, next) => {
     try {
         const hashedPassword = await bcrypt.hash(password, 12);
 
-        const apiToken = jwt.sign({
-            username: username,
-            password: hashedPassword,
-            isAdmin: false,
-            active: true
-        }, secret);
-
         const user = new User({
             username: username,
             email: email,
@@ -147,14 +146,8 @@ exports.register = async (req, res, next) => {
             password: hashedPassword,
         });
 
-        let result = await user.save();
-
-         if (!result) {
-            return res.status(409).json({ message: 'Could not create user.'});
-        }
-
-        apiToken = jwt.sign({
-            userId: result._id.toString(),
+        const apiToken = jwt.sign({
+            userId: user._id.toString(),
             email: email,
             username: username,
             isAdmin: false,
@@ -162,17 +155,19 @@ exports.register = async (req, res, next) => {
         }, secret);
 
         user.apiToken = apiToken;
-        result = await user.save();
     
+        const result = await user.save();
+
         if (!result) {
-            return res.status(409).json({ message: 'Could not save user token.'});
+            return res.status(409).json({ message: 'Could not create user.'});
         }
 
         const token = util.signToken(user);
         
-        res.status(200).json({ access_token: token, userId: result._id });
+        res.status(200).json({ access_token: token, userId: result._id.toString() });
 
     } catch (err) {
+        console.error(err);
         return next(err);
     }
 };

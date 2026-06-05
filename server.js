@@ -11,7 +11,7 @@ const errorRoutes = require('./routes/error-routes');
 const searchRoutes = require('./routes/search-routes');
 const authRoutes = require('./routes/auth-routes');
 const userRoutes = require('./routes/user-routes');
-const { extract, uploader } = require('./util/extract-util');
+const extraRoutes = require('./routes/extra-routes');
 
 const connectDb = require('./util/db-util');
 const apiLogger = require('./util/log-util');
@@ -38,7 +38,7 @@ app.use(log);
 app.use('/api/metadata', metaRoutes);
 app.use('/api/logging', loggingRoutes);
 app.use('/api/search', searchRoutes);
-app.use('/api/extra/upload', uploader.single('file'), extract);
+app.use('/api/extra', extraRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api-docs', swagger.serve, swagger.setup(swaggerConfig));

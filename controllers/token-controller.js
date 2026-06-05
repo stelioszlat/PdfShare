@@ -10,7 +10,7 @@ exports.createTokenByUserId = async (req, res, next) => {
     const userId = req.params.uid;
 
     try {
-        const user = await User.findById(userId);
+        let user = await User.findById(userId);
 
         if (!user) {
             res.status(404).json({ message: 'Could not find user' });
@@ -22,8 +22,11 @@ exports.createTokenByUserId = async (req, res, next) => {
 
         // sign token
         const token = jwt.sign({
+            userId: user._id.toString(),
             email: user.email,
-            username: user.username
+            username: user.username,
+            isAdmin: user.isAdmin,
+            active: true
         }, secret, { expiresIn: '1h' });
 
         const result = await User.findByIdAndUpdate(userId, {
@@ -46,7 +49,7 @@ exports.getTokenByUserId = async (req, res, next) => {
     const userId = req.params.uid;
 
     try {
-        const user = await User.findById(userId);
+        let user = await User.findById(userId);
 
         if (!user) {
             res.status(409).json({ message: 'Could not find user' });
@@ -60,8 +63,19 @@ exports.getTokenByUserId = async (req, res, next) => {
 };
 
 exports.getTokens = async (req, res, next) => {
+    let tokens = []
     try {
-        const tokens = await User.find().select('_id username apiToken');
+        const users = await User.find({
+            apiToken: { $ne: null }
+        });
+
+        for (let user in users) {
+            tokens.push({
+                userId: user._id.toString(),
+                username: user.username,
+                token: user.apiToken
+            });
+        }
         
         res.status(200).json({ tokens });
     } catch (err) {

@@ -37,15 +37,13 @@ exports.createMetadata = async (data) => {
     try {
         const file = await addedMeta.save();
 
-        console.log('Added new file: ' + file.fileName);
-
         return file;
     }
     catch(err){
-
+        console.error(err);
         return false;
     }
-};
+}
 
 exports.getMetadata = async (req, res, next) => {
     // need to add pagination
@@ -55,6 +53,7 @@ exports.getMetadata = async (req, res, next) => {
     } = req.query;
     
     try {
+
         const files = await Metadata.find({}, { keywords: 0, __v: 0}).limit(+limit).skip((+page - 1) * +limit);
 
         let count = await Metadata.countDocuments();
@@ -84,11 +83,8 @@ exports.getMetadataByUserId = async (req, res, next) => {
     }
 
     try {
-        let user = await cache.get(userId);
 
-        if (!user) {
-            user = await User.findById(userId, { keywords: 0, __v: 0});
-        }
+        const user = await User.findById(userId, { keywords: 0, __v: 0});
 
         if (!user) {
             return res.status(404).json({ message: 'Could not find user' });
@@ -96,15 +92,14 @@ exports.getMetadataByUserId = async (req, res, next) => {
 
         const files = await Metadata.find({
             uploader: user.username
-        });
+        }, { keywords: 0 });
 
         if (!files) {
             return res.status(404).json({ message: 'Could not find files' });
         }
 
-        // await cache.setMany(files.map(f => ({ key: f._id, value: f })));
-
         return res.status(200).json({ files });
+
     } catch (err) {
         return next(err);
     }
@@ -125,19 +120,19 @@ exports.getMetadataById = async (req, res, next) => {
         }
         
         file = await Metadata.findById(fileId);
-        
+
         if (!file) {
             return res.status(404).json({ message: 'Could not find file.' });
         }
 
-        res.status(200).json(file);
-    }
-    catch(err){
+        res.status(200).json({file});
+    } catch(err){
         return next(err);
     }
 }
 
 exports.deleteMetadataById = async (req, res, next) => {
+
     const fileId = req.params.fid;
     
     if (!fileId || !mongoose.Types.ObjectId.isValid(fileId)) {
