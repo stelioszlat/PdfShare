@@ -1,0 +1,14 @@
+{
+  "validUsers": [
+    { "user": "zlat", "pass": "zlat123" },
+    { "user": "admin", "pass": "admin" }
+  ],
+  "invalidUsers": [
+    { "user": "zlat123", "pass": "WRONG_PASSWORD" },
+    { "user": "admin", "pass": "INCORRECT_123" }
+  ],
+  "nonExistentUsers": [
+    { "user": "zlatt", "pass": "somePass" },
+    { "user": "adminn", "pass": "noUserPass" }
+  ]
+}
