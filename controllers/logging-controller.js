@@ -9,7 +9,6 @@ exports.log = async (req, res, next) => {
             url: req.originalUrl,
             method: req.method,
             authorization: req.header('Authorization')?.split(' ')[1],
-            authorization: req.header('Authorization')?.split(' ')[1],
             message: req.message
         });
     
