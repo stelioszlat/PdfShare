@@ -2,7 +2,7 @@ const { Router } = require("express");
 
 const meta = require("../controllers/meta-controller");
 // const metaValidation = require('../validation/metadataValidation');
-const { authenticate } = require('../util/auth-util');
+const { authenticate, isSelf } = require('../util/auth-util');
 
 const router = Router();
 
