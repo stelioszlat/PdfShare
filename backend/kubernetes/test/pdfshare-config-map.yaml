@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pdfshare-config
+  namespace: pdfshare
+data:
+  config: "pdfshare.config"
+
+  pdfshare.config: |
+    MONGO_URI: mongodb+srv://<username>:<password>@<cluster>/pdfshare?appName=pdfshareretryWrites=true&w=majority
+    RABBITMQ_URL: "amqp://guest:guest@queue-service:5672"
+    REDIS_URL: "redis://cache-service:6379"
+    S3_BUCKET: "<bucket-name>"
+    AWS_REGION: "<region-name>"
+
+---
+
+apiVersion: v1
+kind: Secret
+metadata:
+  name: pdfshare-secret
+  namespace: pdfshare
+type: Opaque
+data:
+  AWS_ACCESS_KEY_ID: <AWS_ACCESS_KEY_ID>
+  AWS_SECRET_ACCESS_KEY: <AWS_SECRET_ACCESS_KEY>

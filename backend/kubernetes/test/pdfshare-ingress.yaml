@@ -1,0 +1,37 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: pdfshare-ingress
+  namespace: pdfshare
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$1 # use for local testing
+    # use inside EKS with ALB Ingress Controller 
+    # alb.ingress.kubernetes.io/scheme: internet-facing
+    # alb.ingress.kubernetes.io/target-type: ip
+spec:
+  ingressClassName: public
+  # ingressClassName: alb # use for EKS with ALB Ingress Controller
+  rules:
+    - http:
+        paths:
+          - path: /api/auth/?(.*) # /api/auth with EKS
+            pathType: ImplementationSpecific # Prefix for EKS, ImplementationSpecific for local testing
+            backend:
+              service:
+                name: auth-service
+                port:
+                  number: 80
+          - path: /api/metadata/?(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: core-service
+                port:
+                  number: 80
+          - path: /api/extra/?(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: extra-service
+                port:
+                  number: 80

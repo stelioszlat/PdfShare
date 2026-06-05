@@ -1,0 +1,112 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pdfshare-deployment
+  namespace: pdfshare
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      role: pdfshare-backend
+  template:
+    metadata:
+      labels:
+        role: pdfshare-backend
+    spec:
+      containers:
+      # Authentication service
+      - name: auth
+        image: pdfshare/auth:local-test
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 8060
+        envFrom:
+        - configMapRef:
+            name: pdfshare-config
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "250m"
+      # Metadata service
+      - name: core
+        image: pdfshare/core:local-test
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 8080
+        envFrom:
+        - configMapRef:
+            name: pdfshare-config
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "250m"
+      # Files service
+      - name: extra
+        image: pdfshare/extra:local-test
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 8070
+        envFrom:
+        - configMapRef:
+            name: pdfshare-config
+        env:
+        - name: AWS_ACCESS_KEY_ID
+          valueFrom:
+            secretKeyRef:
+              name: pdfshare-secret
+              key: AWS_ACCESS_KEY_ID
+        - name: AWS_SECRET_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: pdfshare-secret
+              key: AWS_SECRET_ACCESS_KEY
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "150m"
+          limits:
+            memory: "512Mi"
+            cpu: "300m"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: auth-service
+  namespace: pdfshare
+spec:
+  ports:
+  - port: 8060
+    targetPort: 8060
+  selector: 
+    role: pdfshare-backend
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: core-service
+  namespace: pdfshare
+spec:
+  ports:
+  - port: 8080
+    targetPort: 8080
+  selector: 
+    role: pdfshare-backend
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: extra-service
+  namespace: pdfshare
+spec:
+  ports:
+  - port: 8070
+    targetPort: 8070
+  selector: 
+    role: pdfshare-backend

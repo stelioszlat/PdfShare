@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: queue-instance
+  namespace: pdfshare
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: queue
+  template:
+    metadata:
+      labels:
+        app: queue
+    spec:
+      containers:
+        - name: rabbitmq 
+          image: pdfshare/queue:local-test
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 5672
+            - containerPort: 15672
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "200m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: queue-service
+  namespace: pdfshare
+spec:
+  ports:
+  - name: rabbitmq-amqp
+    port: 5672
+    targetPort: 5672
+  - name: rabbitmq-management
+    port: 15672
+    targetPort: 15672
+  selector: 
+    app: queue  
