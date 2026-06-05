@@ -10,8 +10,12 @@ provider:
   region: eu-north-1
   timeout: 20
   environment:
-    MONGO_URI: mongodb+srv://stelioszlat:ntERINguANdweSc@pdfcluster.0iyo1.mongodb.net/metadata?retryWrites=true&w=majority
+    MONGO_URI: mongodb+srv://<user>:<password>@<cluster>/metadata?retryWrites=true&w=majority
     SECRET: alksdjfhasdkfhjaskdhf
+
+custom:
+  serverless-offline:
+    supportMultipart: true
 
 functions:
   search:
